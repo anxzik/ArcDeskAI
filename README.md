@@ -27,7 +27,7 @@ Transform how teams work with AI by providing a **virtual organization** where L
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/agentdesk.git
+git clone https://github.com/anxzik/agentdesk.git
 cd agentdesk
 
 # Install dependencies
@@ -85,9 +85,9 @@ agentdesk org
 ```
 ┌─────────────────────────────────────────┐
 │         GUI Layer (Electron/Web)        │
-│  - Org Chart Visualizer                │
-│  - Task Monitor & Delegation           │
-│  - Agent Dashboard & Logs              │
+│  - Org Chart Visualizer                 │
+│  - Task Monitor & Delegation            │
+│  - Agent Dashboard & Logs               │
 └──────────────────┬──────────────────────┘
                    │
 ┌──────────────────▼──────────────────────┐
@@ -249,13 +249,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-- **Issues** - [GitHub Issues](https://github.com/yourusername/agentdesk/issues)
+- **Issues** - [GitHub Issues](https://github.com/anxzik/agentdesk/issues)
 - **Email** - agentdesk@example.com
 - **Twitter** - [@agentdesk](https://twitter.com/agentdesk)
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/agentdesk&type=Date)](https://star-history.com/#yourusername/agentdesk&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=anxzik/agentdesk&type=Date)](https://star-history.com/#anxzik/agentdesk&Date)
 
 ---
 
