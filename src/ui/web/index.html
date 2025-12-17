@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AgentDesk UI (Dev)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 900px; }
+      code { background: #f4f4f4; padding: 0.15rem 0.35rem; border-radius: 4px; }
+      pre { background: #f4f4f4; padding: 1rem; border-radius: 8px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>AgentDesk UI (Dev)</h1>
+    <p>This is a minimal static UI served by the FastAPI dev server.</p>
+
+    <h2>Links</h2>
+    <ul>
+      <li><a href="/docs">API Docs (/docs)</a></li>
+      <li><a href="/health">Health (/health)</a></li>
+    </ul>
+
+    <h2>Health check</h2>
+    <pre id="out">Loading...</pre>
+
+    <script>
+      (async () => {
+        try {
+          const res = await fetch("/health");
+          const data = await res.json();
+          document.getElementById("out").textContent = JSON.stringify(data, null, 2);
+        } catch (e) {
+          document.getElementById("out").textContent = String(e);
+        }
+      })();
+    </script>
+  </body>
+</html>
