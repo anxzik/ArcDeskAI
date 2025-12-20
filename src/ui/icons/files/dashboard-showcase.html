@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcDesk.AI - Dashboard Elements Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #030712;
+            color: #E2E8F0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 50%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            color: #94A3B8;
+            margin-bottom: 3rem;
+            font-size: 1.125rem;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: #F1F5F9;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #1E293B;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .charts-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        }
+        
+        .widgets-grid {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+        
+        .panels-grid {
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        }
+        
+        .indicators-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        }
+        
+        .element-card {
+            background: #0F172A;
+            border: 1px solid #1E293B;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .element-card:hover {
+            border-color: #4F46E5;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+        
+        .element-preview {
+            background: #030712;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .element-preview img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .element-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #F1F5F9;
+        }
+        
+        .element-desc {
+            font-size: 0.875rem;
+            color: #64748B;
+            line-height: 1.5;
+        }
+        
+        .feature-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: #1E293B;
+            color: #94A3B8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            border: 1px solid #334155;
+        }
+        
+        .code-example {
+            background: #0F172A;
+            border: 1px solid #1E293B;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .code-example h3 {
+            color: #F1F5F9;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .code-block {
+            background: #030712;
+            border: 1px solid #1E293B;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            color: #E2E8F0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #8B5CF6;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ArcDesk.AI Dashboard Elements</h1>
+        <p class="subtitle">Premium Vector Graphics for Modern AI Dashboard Interfaces</p>
+        
+        <!-- Charts Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <div class="section-icon">📊</div>
+                Charts & Visualizations
+            </h2>
+            <div class="dashboard-grid charts-grid">
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/charts/line-chart.svg" alt="Line Chart">
+                    </div>
+                    <h3 class="element-name">Performance Line Chart</h3>
+                    <p class="element-desc">Animated line chart with gradient fill and live data points</p>
+                    <div class="feature-tags">
+                        <span class="tag">Animated</span>
+                        <span class="tag">Interactive</span>
+                        <span class="tag">Real-time</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/charts/bar-chart.svg" alt="Bar Chart">
+                    </div>
+                    <h3 class="element-name">Quarterly Bar Chart</h3>
+                    <p class="element-desc">Gradient bars with smooth entrance animations</p>
+                    <div class="feature-tags">
+                        <span class="tag">Animated</span>
+                        <span class="tag">Gradient</span>
+                        <span class="tag">Values</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/charts/donut-chart.svg" alt="Donut Chart">
+                    </div>
+                    <h3 class="element-name">Market Share Donut</h3>
+                    <p class="element-desc">Segmented donut chart with legend and animations</p>
+                    <div class="feature-tags">
+                        <span class="tag">Segmented</span>
+                        <span class="tag">Legend</span>
+                        <span class="tag">Percentages</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/charts/area-chart.svg" alt="Area Chart">
+                    </div>
+                    <h3 class="element-name">Network Traffic Area</h3>
+                    <p class="element-desc">Dual-layer area chart with gradient fills</p>
+                    <div class="feature-tags">
+                        <span class="tag">Multi-series</span>
+                        <span class="tag">Gradient</span>
+                        <span class="tag">Time-series</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Widgets Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <div class="section-icon">🎯</div>
+                Dashboard Widgets
+            </h2>
+            <div class="dashboard-grid widgets-grid">
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/widgets/circular-gauge.svg" alt="Circular Gauge">
+                    </div>
+                    <h3 class="element-name">Utilization Gauge</h3>
+                    <p class="element-desc">Circular speedometer with animated needle</p>
+                    <div class="feature-tags">
+                        <span class="tag">Animated</span>
+                        <span class="tag">Gradient</span>
+                        <span class="tag">Value Display</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/widgets/stat-card.svg" alt="Stat Card">
+                    </div>
+                    <h3 class="element-name">Revenue Stat Card</h3>
+                    <p class="element-desc">Metric card with trend indicator and sparkline</p>
+                    <div class="feature-tags">
+                        <span class="tag">Trends</span>
+                        <span class="tag">Sparkline</span>
+                        <span class="tag">Icons</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview floating">
+                        <img src="./dashboard/widgets/progress-ring.svg" alt="Progress Ring">
+                    </div>
+                    <h3 class="element-name">Progress Ring</h3>
+                    <p class="element-desc">Circular progress indicator with percentage</p>
+                    <div class="feature-tags">
+                        <span class="tag">Animated</span>
+                        <span class="tag">Progress</span>
+                        <span class="tag">Metrics</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/widgets/activity-heatmap.svg" alt="Activity Heatmap">
+                    </div>
+                    <h3 class="element-name">Activity Heatmap</h3>
+                    <p class="element-desc">GitHub-style contribution graph</p>
+                    <div class="feature-tags">
+                        <span class="tag">Heatmap</span>
+                        <span class="tag">Calendar</span>
+                        <span class="tag">Activity</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Panels Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <div class="section-icon">🎪</div>
+                Information Panels
+            </h2>
+            <div class="dashboard-grid panels-grid">
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/panels/system-status.svg" alt="System Status">
+                    </div>
+                    <h3 class="element-name">System Status Panel</h3>
+                    <p class="element-desc">Multi-service status indicators with live states</p>
+                    <div class="feature-tags">
+                        <span class="tag">Status</span>
+                        <span class="tag">Real-time</span>
+                        <span class="tag">Multi-service</span>
+                    </div>
+                </div>
+                
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/panels/mini-metrics.svg" alt="Mini Metrics">
+                    </div>
+                    <h3 class="element-name">Mini Metrics Panel</h3>
+                    <p class="element-desc">Compact KPI display with icons</p>
+                    <div class="feature-tags">
+                        <span class="tag">Compact</span>
+                        <span class="tag">Multi-metric</span>
+                        <span class="tag">Icons</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Indicators Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <div class="section-icon">📡</div>
+                Live Indicators
+            </h2>
+            <div class="dashboard-grid indicators-grid">
+                <div class="element-card">
+                    <div class="element-preview">
+                        <img src="./dashboard/indicators/data-stream.svg" alt="Data Stream">
+                    </div>
+                    <h3 class="element-name">Data Stream Monitor</h3>
+                    <p class="element-desc">Real-time data flow visualization</p>
+                    <div class="feature-tags">
+                        <span class="tag">Live Data</span>
+                        <span class="tag">Animated</span>
+                        <span class="tag">Waveform</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Integration Example -->
+        <div class="code-example">
+            <h3>Integration Example</h3>
+            <div class="code-block">
+                <pre><span class="highlight">// Dashboard Component Example</span>
+import React from 'react';
+import LineChart from './assets/dashboard/charts/line-chart.svg';
+import CircularGauge from './assets/dashboard/widgets/circular-gauge.svg';
+import SystemStatus from './assets/dashboard/panels/system-status.svg';
+
+function Dashboard() {
+  return (
+    &lt;div className="dashboard-container"&gt;
+      &lt;div className="metrics-row"&gt;
+        &lt;img src={CircularGauge} alt="CPU Usage" /&gt;
+        &lt;img src={SystemStatus} alt="System Health" /&gt;
+      &lt;/div&gt;
+      &lt;div className="charts-section"&gt;
+        &lt;img src={LineChart} alt="Performance Metrics" /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+<span class="highlight">// Dynamic SVG Loading</span>
+const loadDashboardElement = async (elementType) => {
+  const elementMap = {
+    'gauge': './dashboard/widgets/circular-gauge.svg',
+    'stats': './dashboard/widgets/stat-card.svg',
+    'stream': './dashboard/indicators/data-stream.svg'
+  };
+  
+  return await fetch(elementMap[elementType]);
+};</pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

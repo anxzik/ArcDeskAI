@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcDesk.AI - SVG Assets Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0F172A;
+            color: #E2E8F0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            color: #94A3B8;
+            margin-bottom: 3rem;
+            font-size: 1.125rem;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            color: #F1F5F9;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #334155;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .asset-card {
+            background: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .asset-card:hover {
+            border-color: #6366F1;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+        
+        .asset-card img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .asset-name {
+            font-size: 0.875rem;
+            color: #CBD5E1;
+            word-break: break-word;
+        }
+        
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .code-block {
+            background: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            color: #E2E8F0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            color: #94A3B8;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .feature-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #6366F1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ArcDesk.AI Assets</h1>
+        <p class="subtitle">Vector Graphics Library for AI Application Interface</p>
+        
+        <section class="section">
+            <h2 class="section-title">AI Model Icons</h2>
+            <div class="grid">
+                <div class="asset-card">
+                    <img src="./icons/openai-gpt.svg" alt="OpenAI GPT">
+                    <p class="asset-name">OpenAI GPT</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./icons/claude-anthropic.svg" alt="Claude Anthropic">
+                    <p class="asset-name">Claude Anthropic</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./icons/google-gemini.svg" alt="Google Gemini">
+                    <p class="asset-name">Google Gemini</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./icons/meta-llama.svg" alt="Meta LLaMA">
+                    <p class="asset-name">Meta LLaMA</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./icons/mistral-ai.svg" alt="Mistral AI">
+                    <p class="asset-name">Mistral AI</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title">Button Components</h2>
+            <div class="grid">
+                <div class="asset-card">
+                    <img src="./buttons/primary-button.svg" alt="Primary Button">
+                    <p class="asset-name">Primary Button</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./buttons/secondary-button.svg" alt="Secondary Button">
+                    <p class="asset-name">Secondary Button</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./buttons/play-button.svg" alt="Play Button">
+                    <p class="asset-name">Play Button</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title">Node Components</h2>
+            <div class="node-grid">
+                <div class="asset-card">
+                    <img src="./nodes/ai-model-node.svg" alt="AI Model Node">
+                    <p class="asset-name">AI Model Node</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./nodes/data-processor-node.svg" alt="Data Processor Node">
+                    <p class="asset-name">Data Processor Node</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title">UI Controls</h2>
+            <div class="node-grid">
+                <div class="asset-card">
+                    <img src="./ui-elements/toggle-switch.svg" alt="Toggle Switch">
+                    <p class="asset-name">Toggle Switch</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./ui-elements/slider-control.svg" alt="Slider Control">
+                    <p class="asset-name">Slider Control</p>
+                </div>
+                <div class="asset-card">
+                    <img src="./ui-elements/dropdown-select.svg" alt="Dropdown Select">
+                    <p class="asset-name">Dropdown Select</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title">Asset Features</h2>
+            <ul class="feature-list">
+                <li>Scalable vector graphics optimized for any resolution</li>
+                <li>Consistent design language across all components</li>
+                <li>Interactive hover states for enhanced UX</li>
+                <li>Modern gradient and shadow effects</li>
+                <li>Dark theme optimized for AI applications</li>
+                <li>Ready for Electron application integration</li>
+            </ul>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title">Integration Example</h2>
+            <div class="code-block">
+                <pre>// Example: Using SVG assets in Electron app
+const { app, BrowserWindow } = require('electron');
+
+// In your renderer process
+const aiModelIcon = document.createElement('img');
+aiModelIcon.src = './assets/icons/openai-gpt.svg';
+aiModelIcon.className = 'ai-model-icon';
+
+// For React components
+import GPTIcon from './assets/icons/openai-gpt.svg';
+
+function AIModelSelector() {
+  return (
+    &lt;div className="model-selector"&gt;
+      &lt;img src={GPTIcon} alt="GPT Model" /&gt;
+      &lt;span&gt;GPT-4&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

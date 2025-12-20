@@ -1,0 +1,511 @@
+# Sample AgentDesk Organization Configuration
+# This creates a small software development team
+
+organization:
+  name: "Cybersecurity Research Lab"
+  description: "Focused on security research, threat analysis, and secure coding"
+
+desks:
+  # Executive Level
+  - id: "ciso-001"
+    title: "Chief Information Security Officer"
+    role: "executive"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.7
+      max_tokens: 4000
+    capabilities:
+      - strategic_planning
+      - risk_management
+      - compliance_oversight
+      - incident_response_coordination
+      - security_architecture
+    hierarchy_level: 1
+    
+  # Management Level
+  - id: "sec-manager-001"
+    title: "Security Engineering Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "ciso-001"
+    team_id: "security-engineering"
+    capabilities:
+      - team_coordination
+      - project_management
+      - security_review
+      - mentoring
+      - resource_allocation
+    hierarchy_level: 2
+    
+  - id: "threat-manager-001"
+    title: "Threat Intelligence Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "ciso-001"
+    team_id: "threat-intelligence"
+    capabilities:
+      - threat_analysis
+      - intelligence_gathering
+      - strategic_assessment
+      - team_coordination
+    hierarchy_level: 2
+    
+  # Senior Level - Security Engineering
+  - id: "senior-sec-001"
+    title: "Senior Security Engineer"
+    role: "senior_engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "sec-manager-001"
+    team_id: "security-engineering"
+    capabilities:
+      - security_code_review
+      - vulnerability_assessment
+      - penetration_testing
+      - secure_architecture_design
+      - threat_modeling
+      - security_automation
+    tools:
+      - bash
+      - python_repl
+      - nmap
+      - metasploit
+      - burp_suite
+    hierarchy_level: 3
+    
+  - id: "appsec-001"
+    title: "Application Security Specialist"
+    role: "senior_engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.2
+      max_tokens: 4000
+    reports_to: "sec-manager-001"
+    team_id: "security-engineering"
+    capabilities:
+      - static_analysis
+      - dynamic_analysis
+      - dependency_scanning
+      - secure_coding_review
+      - owasp_expertise
+    tools:
+      - sonarqube
+      - snyk
+      - bandit
+      - semgrep
+    hierarchy_level: 3
+    
+  # Senior Level - Threat Intelligence
+  - id: "threat-analyst-001"
+    title: "Senior Threat Analyst"
+    role: "researcher"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "threat-manager-001"
+    team_id: "threat-intelligence"
+    capabilities:
+      - threat_hunting
+      - malware_analysis
+      - ioc_extraction
+      - attack_pattern_analysis
+      - threat_reporting
+    tools:
+      - misp
+      - virustotal_api
+      - yara
+      - ida_pro
+    hierarchy_level: 3
+    
+  # Mid Level
+  - id: "sec-engineer-001"
+    title: "Security Engineer"
+    role: "engineer"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "senior-sec-001"
+    team_id: "security-engineering"
+    capabilities:
+      - vulnerability_scanning
+      - security_testing
+      - log_analysis
+      - incident_investigation
+      - documentation
+    tools:
+      - nessus
+      - wireshark
+      - splunk
+      - elastic_siem
+    hierarchy_level: 4
+    
+  - id: "threat-researcher-001"
+    title: "Threat Researcher"
+    role: "researcher"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "threat-analyst-001"
+    team_id: "threat-intelligence"
+    capabilities:
+      - osint_gathering
+      - threat_research
+      - indicator_analysis
+      - report_writing
+    tools:
+      - maltego
+      - shodan
+      - censys
+      - urlscan
+    hierarchy_level: 4
+    
+  # QA/Compliance
+  - id: "compliance-001"
+    title: "Security Compliance Analyst"
+    role: "qa_engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.2
+      max_tokens: 4000
+    reports_to: "ciso-001"
+    team_id: "compliance"
+    capabilities:
+      - compliance_review
+      - policy_verification
+      - audit_preparation
+      - framework_mapping
+      - risk_assessment
+    tools:
+      - compliance_scanner
+      - policy_checker
+    hierarchy_level: 2
+
+teams:
+  - id: "security-engineering"
+    name: "Security Engineering Team"
+    lead: "sec-manager-001"
+    members:
+      - "sec-manager-001"
+      - "senior-sec-001"
+      - "appsec-001"
+      - "sec-engineer-001"
+    focus: "Proactive security measures and secure development"
+    
+  - id: "threat-intelligence"
+    name: "Threat Intelligence Team"
+    lead: "threat-manager-001"
+    members:
+      - "threat-manager-001"
+      - "threat-analyst-001"
+      - "threat-researcher-001"
+    focus: "Threat landscape monitoring and intelligence gathering"
+    
+  - id: "compliance"
+    name: "Compliance & Risk"
+    lead: "compliance-001"
+    members:
+      - "compliance-001"
+    focus: "Regulatory compliance and risk management"
+
+committees:
+  - id: "security-review-board"
+    name: "Security Review Board"
+    chair: "ciso-001"
+    members:
+      - "ciso-001"
+      - "sec-manager-001"
+      - "threat-manager-001"
+      - "senior-sec-001"
+      - "compliance-001"
+    purpose: "Review and approve security architectures, major incidents, and strategic initiatives"
+    meeting_frequency: "weekly"
+    
+  - id: "vulnerability-assessment"
+    name: "Vulnerability Assessment Committee"
+    chair: "senior-sec-001"
+    members:
+      - "senior-sec-001"
+      - "appsec-001"
+      - "sec-engineer-001"
+    purpose: "Prioritize and coordinate vulnerability remediation efforts"
+    meeting_frequency: "daily"
+    
+  - id: "threat-intelligence-sharing"
+    name: "Threat Intelligence Sharing Group"
+    chair: "threat-manager-001"
+    members:
+      - "threat-manager-001"
+      - "threat-analyst-001"
+      - "threat-researcher-001"
+      - "senior-sec-001"
+    purpose: "Share threat intelligence and coordinate defensive measures"
+    meeting_frequency: "daily"
+
+qa_pipeline:
+  enabled: true
+  required_for:
+    - "security_code"
+    - "security_policy"
+    - "vulnerability_report"
+    - "threat_intelligence"
+    - "architecture_document"
+    
+  stages:
+    - type: "automated_security_scan"
+      agent: "appsec-001"
+      tools:
+        - static_analysis
+        - dependency_check
+        - secrets_scanner
+      timeout: 600
+      block_on_critical: true
+      
+    - type: "peer_review"
+      assignee_level: "same_or_higher"
+      required_reviewers: 1
+      criteria:
+        - "security_best_practices"
+        - "code_quality"
+        - "documentation"
+        
+    - type: "threat_assessment"
+      agent: "threat-analyst-001"
+      required_for_types:
+        - "new_feature"
+        - "architecture_change"
+        - "external_integration"
+      assessment_areas:
+        - "attack_surface"
+        - "threat_vectors"
+        - "risk_level"
+        
+    - type: "compliance_check"
+      agent: "compliance-001"
+      required_for_priority: ["high", "critical"]
+      frameworks:
+        - "NIST_CSF"
+        - "ISO_27001"
+        - "SOC2"
+        
+    - type: "manager_approval"
+      agent: "sec-manager-001"
+      required_for_priority: ["high", "critical"]
+      approval_criteria:
+        - "business_impact"
+        - "risk_acceptance"
+        - "resource_allocation"
+        
+    - type: "ciso_approval"
+      agent: "ciso-001"
+      required_for_priority: ["critical"]
+      required_for_types:
+        - "major_architecture_change"
+        - "security_incident_response"
+
+workflows:
+  vulnerability_remediation:
+    name: "Vulnerability Remediation Workflow"
+    trigger: "vulnerability_discovered"
+    steps:
+      - name: "Initial Triage"
+        assigned_role: "engineer"
+        outputs:
+          - "severity_assessment"
+          - "affected_systems"
+          
+      - name: "Detailed Analysis"
+        assigned_role: "senior_engineer"
+        inputs: ["severity_assessment"]
+        outputs:
+          - "exploitation_difficulty"
+          - "remediation_plan"
+          
+      - name: "Threat Intelligence Correlation"
+        assigned_role: "researcher"
+        committee: "threat-intelligence-sharing"
+        outputs:
+          - "active_exploitation"
+          - "threat_actor_attribution"
+          
+      - name: "Remediation Implementation"
+        assigned_role: "senior_engineer"
+        qa_required: true
+        
+      - name: "Verification Testing"
+        assigned_role: "qa_engineer"
+        
+      - name: "Documentation & Closure"
+        assigned_role: "engineer"
+        outputs:
+          - "remediation_report"
+          - "lessons_learned"
+  
+  security_code_review:
+    name: "Security Code Review"
+    trigger: "code_commit"
+    steps:
+      - name: "Automated Security Scanning"
+        assigned_role: "qa_engineer"
+        tools: ["static_analysis", "secrets_scan"]
+        
+      - name: "Manual Code Review"
+        assigned_role: "senior_engineer"
+        focus_areas:
+          - "authentication"
+          - "authorization"
+          - "input_validation"
+          - "crypto_usage"
+          
+      - name: "Threat Modeling"
+        assigned_role: "senior_engineer"
+        required_for: ["new_feature", "architecture_change"]
+        
+      - name: "Security Testing"
+        assigned_role: "engineer"
+        test_types:
+          - "fuzzing"
+          - "boundary_testing"
+          - "auth_bypass_attempts"
+          
+      - name: "Approval"
+        assigned_role: "manager"
+  
+  incident_response:
+    name: "Security Incident Response"
+    trigger: "security_incident_detected"
+    priority: "critical"
+    steps:
+      - name: "Incident Detection & Reporting"
+        assigned_role: "engineer"
+        max_duration: 15  # minutes
+        
+      - name: "Initial Assessment"
+        assigned_role: "senior_engineer"
+        committee: "security-review-board"
+        outputs:
+          - "incident_severity"
+          - "containment_strategy"
+        
+      - name: "Containment"
+        assigned_role: "senior_engineer"
+        
+      - name: "Threat Analysis"
+        assigned_role: "researcher"
+        team: "threat-intelligence"
+        
+      - name: "Eradication"
+        assigned_role: "senior_engineer"
+        
+      - name: "Recovery"
+        assigned_role: "engineer"
+        verification_required: true
+        
+      - name: "Post-Incident Review"
+        assigned_role: "manager"
+        committee: "security-review-board"
+        outputs:
+          - "incident_report"
+          - "lessons_learned"
+          - "improvement_recommendations"
+
+task_routing:
+  # Automatically route tasks based on keywords and priority
+  rules:
+    - keywords: ["vulnerability", "CVE", "exploit"]
+      route_to: "senior-sec-001"
+      escalate_if_critical: "sec-manager-001"
+      
+    - keywords: ["malware", "threat actor", "campaign"]
+      route_to: "threat-analyst-001"
+      
+    - keywords: ["compliance", "audit", "policy"]
+      route_to: "compliance-001"
+      
+    - keywords: ["code review", "secure coding"]
+      route_to: "appsec-001"
+      
+    - keywords: ["incident", "breach", "compromise"]
+      route_to: "senior-sec-001"
+      notify_committee: "security-review-board"
+      escalate_to: "ciso-001"
+
+notifications:
+  channels:
+    - type: "slack"
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      notify_on:
+        - "critical_vulnerability"
+        - "security_incident"
+        - "compliance_violation"
+        
+    - type: "email"
+      recipients: ["security-team@company.com"]
+      notify_on:
+        - "qa_failure"
+        - "manager_approval_needed"
+        
+    - type: "pagerduty"
+      integration_key: "${PAGERDUTY_KEY}"
+      notify_on:
+        - "critical_incident"
+        - "system_compromise"
+
+metrics:
+  track:
+    - "vulnerability_discovery_rate"
+    - "mean_time_to_remediation"
+    - "security_scan_coverage"
+    - "incident_response_time"
+    - "compliance_score"
+    - "threat_intelligence_reports_generated"
+    
+  dashboards:
+    - name: "Security Posture"
+      refresh_interval: 300  # seconds
+      metrics:
+        - "open_critical_vulnerabilities"
+        - "days_since_last_incident"
+        - "compliance_score"
+        
+    - name: "Team Performance"
+      metrics:
+        - "tasks_completed_by_agent"
+        - "average_task_duration"
+        - "qa_pass_rate"
+
+# Custom agent behaviors
+agent_behaviors:
+  ciso-001:
+    communication_style: "executive_summary"
+    decision_making: "risk_based"
+    escalation_threshold: "high"
+    
+  senior-sec-001:
+    communication_style: "technical_detailed"
+    automation_preference: "high"
+    documentation_level: "comprehensive"
+    
+  threat-analyst-001:
+    research_depth: "thorough"
+    ioc_extraction: "automatic"
+    report_format: "stix"

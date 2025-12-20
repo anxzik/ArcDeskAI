@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="160" height="80" viewBox="0 0 160 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dataGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:1" />
+    </linearGradient>
+    <filter id="dataShadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  
+  <!-- Node body -->
+  <rect x="4" y="4" width="152" height="72" rx="8" fill="white" filter="url(#dataShadow)"/>
+  <rect x="4" y="4" width="152" height="72" rx="8" fill="none" stroke="#E5E7EB" stroke-width="1"/>
+  
+  <!-- Data flow visualization -->
+  <g opacity="0.1">
+    <rect x="20" y="20" width="4" height="40" fill="url(#dataGrad)"/>
+    <rect x="30" y="25" width="4" height="30" fill="url(#dataGrad)"/>
+    <rect x="40" y="15" width="4" height="50" fill="url(#dataGrad)"/>
+    <rect x="50" y="22" width="4" height="36" fill="url(#dataGrad)"/>
+    <rect x="60" y="18" width="4" height="44" fill="url(#dataGrad)"/>
+  </g>
+  
+  <!-- Connection ports -->
+  <rect x="0" y="35" width="8" height="10" rx="2" fill="url(#dataGrad)"/>
+  <rect x="152" y="35" width="8" height="10" rx="2" fill="url(#dataGrad)"/>
+  
+  <!-- Icon -->
+  <g transform="translate(16, 16)">
+    <rect x="0" y="0" width="24" height="24" rx="6" fill="url(#dataGrad)" opacity="0.1"/>
+    <path d="M6 8 L18 8 M6 12 L18 12 M6 16 L14 16" stroke="url(#dataGrad)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Labels -->
+  <text x="48" y="28" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#1F2937">Data Processor</text>
+  <text x="16" y="56" font-family="Arial, sans-serif" font-size="11" fill="#6B7280">Transform: JSON → CSV</text>
+  
+  <!-- Progress indicator -->
+  <rect x="16" y="64" width="128" height="4" rx="2" fill="#E5E7EB"/>
+  <rect x="16" y="64" width="76" height="4" rx="2" fill="url(#dataGrad)"/>
+</svg>

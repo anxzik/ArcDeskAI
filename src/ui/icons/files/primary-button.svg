@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="primaryGradHover" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#818CF8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </linearGradient>
+    <filter id="buttonShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Button states -->
+  <g id="normal">
+    <rect x="2" y="2" width="116" height="36" rx="8" fill="url(#primaryGrad)" filter="url(#buttonShadow)"/>
+    <rect x="2" y="2" width="116" height="36" rx="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <text x="60" y="24" font-family="Arial, sans-serif" font-size="14" font-weight="600" 
+          text-anchor="middle" fill="white">Primary Action</text>
+  </g>
+  
+  <!-- Hover state (hidden by default) -->
+  <g id="hover" opacity="0">
+    <rect x="2" y="2" width="116" height="36" rx="8" fill="url(#primaryGradHover)" filter="url(#buttonShadow)"/>
+    <rect x="2" y="2" width="116" height="36" rx="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <text x="60" y="24" font-family="Arial, sans-serif" font-size="14" font-weight="600" 
+          text-anchor="middle" fill="white">Primary Action</text>
+  </g>
+  
+  <style>
+    svg:hover #normal { opacity: 0; }
+    svg:hover #hover { opacity: 1; }
+  </style>
+</svg>

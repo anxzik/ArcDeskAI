@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="120" viewBox="0 0 240 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="statCardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E293B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0F172A;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="iconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:1" />
+    </linearGradient>
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Card background -->
+  <rect width="240" height="120" rx="12" fill="url(#statCardBg)" filter="url(#cardShadow)"/>
+  <rect x="1" y="1" width="238" height="118" rx="11" fill="none" stroke="#334155" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Icon background -->
+  <rect x="16" y="16" width="48" height="48" rx="12" fill="url(#iconBg)" opacity="0.15"/>
+  <rect x="16" y="16" width="48" height="48" rx="12" fill="none" stroke="url(#iconBg)" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Icon -->
+  <g transform="translate(40, 40)">
+    <path d="M-8 -4 L-8 4 L-4 4 M-2 4 L2 4 M4 4 L8 4 L8 -4" 
+          stroke="#6366F1" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M-6 0 L-2 -4 L2 2 L6 -2" 
+          stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  
+  <!-- Metric value -->
+  <text x="16" y="90" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#F1F5F9">$124.8K</text>
+  
+  <!-- Metric label -->
+  <text x="80" y="36" font-family="Arial, sans-serif" font-size="12" fill="#94A3B8">Total Revenue</text>
+  
+  <!-- Trend indicator -->
+  <rect x="160" y="48" width="64" height="24" rx="12" fill="#10B981" opacity="0.15"/>
+  <g transform="translate(180, 60)">
+    <path d="M0 -4 L4 0 L0 4" 
+          stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+          fill="none" transform="rotate(-45)"/>
+  </g>
+  <text x="196" y="64" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#10B981">12.5%</text>
+  
+  <!-- Sparkline mini chart -->
+  <g transform="translate(80, 50)">
+    <path d="M0 10 L10 8 L20 12 L30 6 L40 4 L50 7 L60 2" 
+          fill="none" stroke="#6366F1" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+    <circle cx="60" cy="2" r="2" fill="#6366F1"/>
+  </g>
+  
+  <!-- Time period -->
+  <text x="224" y="106" font-family="Arial, sans-serif" font-size="10" fill="#64748B" text-anchor="end">Last 30 days</text>
+</svg>

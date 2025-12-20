@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="streamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:0" />
+      <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:0" />
+    </linearGradient>
+    <filter id="streamGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="320" height="80" rx="8" fill="#0F172A"/>
+  <rect x="1" y="1" width="318" height="78" rx="7" fill="none" stroke="#1E293B" stroke-width="1"/>
+  
+  <!-- Grid lines -->
+  <g opacity="0.1">
+    <line x1="0" y1="20" x2="320" y2="20" stroke="#334155" stroke-dasharray="2,4"/>
+    <line x1="0" y1="40" x2="320" y2="40" stroke="#334155" stroke-dasharray="2,4"/>
+    <line x1="0" y1="60" x2="320" y2="60" stroke="#334155" stroke-dasharray="2,4"/>
+  </g>
+  
+  <!-- Data stream visualization -->
+  <g clip-path="url(#streamClip)">
+    <clipPath id="streamClip">
+      <rect x="60" y="0" width="200" height="80"/>
+    </clipPath>
+    
+    <!-- Moving waveform -->
+    <path d="M-40 40 Q-20 20 0 40 T40 40 T80 40 Q100 60 120 40 T160 40 T200 40 Q220 25 240 40 T280 40 T320 40 T360 40"
+          stroke="#6366F1" stroke-width="2" fill="none" filter="url(#streamGlow)">
+      <animateTransform attributeName="transform" type="translate" 
+                        from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Data points -->
+    <g>
+      <circle cx="40" cy="40" r="3" fill="#6366F1">
+        <animate attributeName="cy" values="40;30;40" dur="1s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="80" cy="40" r="3" fill="#10B981">
+        <animate attributeName="cy" values="40;50;40" dur="1.2s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="120" cy="40" r="3" fill="#F59E0B">
+        <animate attributeName="cy" values="40;25;40" dur="0.8s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="160" cy="40" r="3" fill="#EF4444">
+        <animate attributeName="cy" values="40;55;40" dur="1.5s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="200" cy="40" r="3" fill="#6366F1">
+        <animate attributeName="cy" values="40;35;40" dur="1.1s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="240" cy="40" r="3" fill="#10B981">
+        <animate attributeName="cy" values="40;45;40" dur="0.9s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="280" cy="40" r="3" fill="#F59E0B">
+        <animate attributeName="cy" values="40;30;40" dur="1.3s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="320" cy="40" r="3" fill="#6366F1">
+        <animate attributeName="cy" values="40;50;40" dur="1s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="360" cy="40" r="3" fill="#10B981">
+        <animate attributeName="cy" values="40;35;40" dur="1.4s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" 
+                          from="0 0" to="-80 0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+  
+  <!-- Left indicator -->
+  <rect x="0" y="0" width="60" height="80" fill="url(#streamGrad)" transform="rotate(180 30 40)"/>
+  <rect x="0" y="0" width="60" height="80" rx="8" fill="#0F172A"/>
+  <g transform="translate(30, 40)">
+    <circle cx="0" cy="0" r="12" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <circle cx="0" cy="0" r="4" fill="#10B981">
+      <animate attributeName="r" values="4;8;4" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <text x="30" y="65" font-family="Arial, sans-serif" font-size="9" fill="#64748B" text-anchor="middle">LIVE</text>
+  
+  <!-- Right indicator -->
+  <rect x="260" y="0" width="60" height="80" fill="url(#streamGrad)"/>
+  <rect x="260" y="0" width="60" height="80" rx="8" fill="#0F172A"/>
+  <text x="290" y="30" font-family="Arial, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">Rate</text>
+  <text x="290" y="48" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#F1F5F9" text-anchor="middle">1.2K</text>
+  <text x="290" y="62" font-family="Arial, sans-serif" font-size="9" fill="#64748B" text-anchor="middle">msg/s</text>
+</svg>

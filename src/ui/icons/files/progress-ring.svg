@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </linearGradient>
+    <filter id="progressGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="80" cy="80" r="75" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+  
+  <!-- Background ring -->
+  <circle cx="80" cy="80" r="60" fill="none" stroke="#1E293B" stroke-width="8" opacity="0.3"/>
+  
+  <!-- Progress ring -->
+  <circle cx="80" cy="80" r="60" fill="none" 
+          stroke="url(#progressGrad)" 
+          stroke-width="8" 
+          stroke-linecap="round"
+          stroke-dasharray="377"
+          stroke-dashoffset="377"
+          transform="rotate(-90 80 80)"
+          filter="url(#progressGlow)">
+    <animate attributeName="stroke-dashoffset" 
+             values="377;94.25" 
+             dur="2s" 
+             fill="freeze"/>
+  </circle>
+  
+  <!-- Decorative dots -->
+  <g opacity="0.4">
+    <circle cx="80" cy="20" r="2" fill="#6366F1"/>
+    <circle cx="120" cy="40" r="2" fill="#6366F1"/>
+    <circle cx="140" cy="80" r="2" fill="#6366F1"/>
+    <circle cx="120" cy="120" r="2" fill="#6366F1"/>
+    <circle cx="80" cy="140" r="2" fill="#6366F1"/>
+    <circle cx="40" cy="120" r="2" fill="#6366F1"/>
+    <circle cx="20" cy="80" r="2" fill="#6366F1"/>
+    <circle cx="40" cy="40" r="2" fill="#6366F1"/>
+  </g>
+  
+  <!-- Center content -->
+  <g text-anchor="middle">
+    <!-- Percentage -->
+    <text x="80" y="75" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#F1F5F9">
+      <tspan>0</tspan>
+      <animate attributeName="opacity" values="1;0" dur="2s" fill="freeze"/>
+    </text>
+    <text x="80" y="75" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#F1F5F9" opacity="0">
+      <tspan>75</tspan>
+      <animate attributeName="opacity" values="0;1" dur="0.5s" begin="2s" fill="freeze"/>
+    </text>
+    <text x="80" y="75" font-family="Arial, sans-serif" font-size="16" fill="#F1F5F9" dx="20">%</text>
+    
+    <!-- Label -->
+    <text x="80" y="95" font-family="Arial, sans-serif" font-size="12" fill="#64748B">Complete</text>
+    
+    <!-- Sub-metric -->
+    <rect x="50" y="105" width="60" height="20" rx="10" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+    <text x="80" y="118" font-family="Arial, sans-serif" font-size="10" fill="#94A3B8">18 of 24</text>
+  </g>
+</svg>

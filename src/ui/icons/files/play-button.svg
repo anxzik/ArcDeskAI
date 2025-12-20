@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconBtnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <filter id="iconShadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Button background -->
+  <g id="play-normal">
+    <circle cx="20" cy="20" r="18" fill="url(#iconBtnGrad)" filter="url(#iconShadow)"/>
+    <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    
+    <!-- Play icon -->
+    <path d="M16 12 L16 28 L28 20 Z" fill="white" opacity="0.95"/>
+  </g>
+  
+  <!-- Hover state -->
+  <g id="play-hover" opacity="0">
+    <circle cx="20" cy="20" r="18" fill="url(#iconBtnGrad)" filter="url(#iconShadow)" opacity="0.9"/>
+    <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    
+    <!-- Play icon scaled -->
+    <path d="M15 11 L15 29 L29 20 Z" fill="white"/>
+  </g>
+  
+  <style>
+    svg:hover #play-normal { opacity: 0; }
+    svg:hover #play-hover { opacity: 1; }
+  </style>
+</svg>

@@ -1,0 +1,496 @@
+#!/usr/bin/env python3
+"""
+AgentDesk CLI - Command Line Interface for Agent Organization Management
+
+Usage:
+    agentdesk init                          # Initialize a new organization
+    agentdesk desk add <config>             # Add a new agent desk
+    agentdesk desk list                     # List all desks
+    agentdesk task create <title>           # Create a new task
+    agentdesk task assign <task_id> <desk>  # Assign task to desk
+    agentdesk org show                      # Display organization chart
+    agentdesk run                           # Start the task processing loop
+"""
+
+import asyncio
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+import click
+import yaml
+from rich.console import Console
+from rich.table import Table
+from rich.tree import Tree
+
+# Import from our core module (adjust path as needed)
+# For standalone use, you may need to modify imports
+try:
+    from agentdesk_core import (
+        AgentDesk, AgentRole, LLMConfig, OrganizationStructure,
+        Task, TaskStatus, Priority, DeskStatus
+    )
+except ImportError:
+    print("Error: Could not import agentdesk_core. Make sure it's in your Python path.")
+    sys.exit(1)
+
+console = Console()
+
+# Global organization instance (in production, this would be in a database)
+_org: Optional[OrganizationStructure] = None
+_config_dir = Path.home() / ".agentdesk"
+_org_file = _config_dir / "organization.json"
+
+
+def load_organization() -> OrganizationStructure:
+    """Load organization from config file"""
+    global _org
+    
+    if _org is not None:
+        return _org
+    
+    if not _org_file.exists():
+        console.print("[red]No organization found. Run 'agentdesk init' first.[/red]")
+        sys.exit(1)
+    
+    with open(_org_file, 'r') as f:
+        data = json.load(f)
+    
+    org = OrganizationStructure(data['name'])
+    
+    # Recreate desks
+    for desk_data in data.get('desks', []):
+        llm_cfg = desk_data['llm_config']
+        llm_config = LLMConfig(
+            provider=llm_cfg['provider'],
+            model=llm_cfg['model'],
+            temperature=llm_cfg.get('temperature', 0.7),
+            max_tokens=llm_cfg.get('max_tokens', 4000)
+        )
+        
+        desk = AgentDesk(
+            desk_id=desk_data['desk_id'],
+            title=desk_data['title'],
+            role=AgentRole(desk_data['role']),
+            llm_config=llm_config,
+            capabilities=desk_data.get('capabilities', []),
+            hierarchy_level=desk_data.get('hierarchy_level', 0),
+            reports_to=desk_data.get('reports_to'),
+            team_id=desk_data.get('team_id')
+        )
+        org.add_desk(desk)
+    
+    # Recreate tasks
+    for task_data in data.get('tasks', []):
+        task = Task(
+            task_id=task_data['task_id'],
+            title=task_data['title'],
+            description=task_data['description'],
+            created_by=task_data['created_by'],
+            assigned_to=task_data.get('assigned_to'),
+            status=TaskStatus(task_data['status']),
+            priority=Priority(task_data['priority']),
+            qa_required=task_data.get('qa_required', True)
+        )
+        org.tasks[task.task_id] = task
+    
+    _org = org
+    return org
+
+
+def save_organization(org: OrganizationStructure):
+    """Save organization to config file"""
+    _config_dir.mkdir(exist_ok=True)
+    
+    data = {
+        'name': org.org_name,
+        'desks': [desk.to_dict() for desk in org.desks.values()],
+        'tasks': [task.to_dict() for task in org.tasks.values()],
+        'saved_at': datetime.now().isoformat()
+    }
+    
+    with open(_org_file, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    console.print(f"[green]Organization saved to {_org_file}[/green]")
+
+
+@click.group()
+def cli():
+    """AgentDesk - Hierarchical Multi-Agent AI Organization System"""
+    pass
+
+
+@cli.command()
+@click.option('--name', prompt='Organization name', help='Name of your organization')
+@click.option('--from-file', type=click.Path(exists=True), help='Load from YAML config file')
+def init(name: str, from_file: Optional[str]):
+    """Initialize a new organization"""
+    
+    if from_file:
+        with open(from_file, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        org = OrganizationStructure(config['organization']['name'])
+        
+        # Create desks from config
+        for desk_cfg in config['organization'].get('desks', []):
+            llm_cfg = desk_cfg['llm']
+            llm_config = LLMConfig(
+                provider=llm_cfg['provider'],
+                model=llm_cfg['model'],
+                temperature=llm_cfg.get('temperature', 0.7),
+                max_tokens=llm_cfg.get('max_tokens', 4000)
+            )
+            
+            desk = AgentDesk(
+                desk_id=desk_cfg['id'],
+                title=desk_cfg['title'],
+                role=AgentRole(desk_cfg['role']),
+                llm_config=llm_config,
+                capabilities=desk_cfg.get('capabilities', []),
+                hierarchy_level=desk_cfg.get('hierarchy_level', 0),
+                reports_to=desk_cfg.get('reports_to'),
+                team_id=desk_cfg.get('team_id')
+            )
+            org.add_desk(desk)
+        
+        save_organization(org)
+        console.print(f"[green]✓ Organization '{org.org_name}' initialized from {from_file}[/green]")
+        console.print(f"[blue]Created {len(org.desks)} agent desks[/blue]")
+    else:
+        org = OrganizationStructure(name)
+        save_organization(org)
+        console.print(f"[green]✓ Organization '{name}' initialized[/green]")
+        console.print("[yellow]Add agent desks with: agentdesk desk add[/yellow]")
+
+
+@cli.group()
+def desk():
+    """Manage agent desks"""
+    pass
+
+
+@desk.command('list')
+def desk_list():
+    """List all agent desks"""
+    org = load_organization()
+    
+    table = Table(title=f"{org.org_name} - Agent Desks")
+    table.add_column("Desk ID", style="cyan")
+    table.add_column("Title", style="magenta")
+    table.add_column("Role", style="green")
+    table.add_column("Level", justify="right")
+    table.add_column("Reports To", style="yellow")
+    table.add_column("Status", style="blue")
+    
+    for desk in org.desks.values():
+        table.add_row(
+            desk.desk_id,
+            desk.title,
+            desk.role.value,
+            str(desk.hierarchy_level),
+            desk.reports_to or "-",
+            desk.status.value
+        )
+    
+    console.print(table)
+
+
+@desk.command('add')
+@click.option('--desk-id', prompt=True, help='Unique desk identifier')
+@click.option('--title', prompt=True, help='Job title')
+@click.option('--role', type=click.Choice([r.value for r in AgentRole]), prompt=True)
+@click.option('--provider', default='anthropic', help='LLM provider')
+@click.option('--model', default='claude-sonnet-4-20250514', help='LLM model')
+@click.option('--reports-to', help='Desk ID of supervisor')
+@click.option('--level', default=1, help='Hierarchy level')
+def desk_add(desk_id, title, role, provider, model, reports_to, level):
+    """Add a new agent desk"""
+    org = load_organization()
+    
+    if desk_id in org.desks:
+        console.print(f"[red]Error: Desk '{desk_id}' already exists[/red]")
+        return
+    
+    llm_config = LLMConfig(provider=provider, model=model)
+    
+    desk = AgentDesk(
+        desk_id=desk_id,
+        title=title,
+        role=AgentRole(role),
+        llm_config=llm_config,
+        hierarchy_level=level,
+        reports_to=reports_to
+    )
+    
+    org.add_desk(desk)
+    save_organization(org)
+    
+    console.print(f"[green]✓ Added desk '{desk_id}' - {title}[/green]")
+
+
+@desk.command('info')
+@click.argument('desk_id')
+def desk_info(desk_id):
+    """Show detailed information about a desk"""
+    org = load_organization()
+    desk = org.get_desk(desk_id)
+    
+    if not desk:
+        console.print(f"[red]Desk '{desk_id}' not found[/red]")
+        return
+    
+    console.print(f"\n[bold cyan]{desk.title}[/bold cyan] ({desk.desk_id})")
+    console.print(f"Role: {desk.role.value}")
+    console.print(f"Hierarchy Level: {desk.hierarchy_level}")
+    console.print(f"Reports To: {desk.reports_to or 'None (top level)'}")
+    console.print(f"Status: {desk.status.value}")
+    console.print(f"\nLLM Configuration:")
+    console.print(f"  Provider: {desk.llm_config.provider}")
+    console.print(f"  Model: {desk.llm_config.model}")
+    console.print(f"  Temperature: {desk.llm_config.temperature}")
+    
+    if desk.capabilities:
+        console.print(f"\nCapabilities:")
+        for cap in desk.capabilities:
+            console.print(f"  • {cap}")
+    
+    # Show subordinates
+    subordinates = org.get_subordinates(desk_id)
+    if subordinates:
+        console.print(f"\nDirect Reports: {len(subordinates)}")
+        for sub in subordinates:
+            console.print(f"  • {sub.title} ({sub.desk_id})")
+
+
+@cli.group()
+def task():
+    """Manage tasks"""
+    pass
+
+
+@task.command('create')
+@click.option('--title', prompt=True, help='Task title')
+@click.option('--description', prompt=True, help='Task description')
+@click.option('--priority', type=click.Choice(['low', 'medium', 'high', 'critical']), default='medium')
+@click.option('--assign-to', help='Desk ID to assign to')
+def task_create(title, description, priority, assign_to):
+    """Create a new task"""
+    org = load_organization()
+    
+    priority_map = {
+        'low': Priority.LOW,
+        'medium': Priority.MEDIUM,
+        'high': Priority.HIGH,
+        'critical': Priority.CRITICAL
+    }
+    
+    task = org.create_task(
+        title=title,
+        description=description,
+        created_by='cli-user',
+        priority=priority_map[priority]
+    )
+    
+    if assign_to:
+        desk = org.get_desk(assign_to)
+        if desk:
+            task.assigned_to = assign_to
+            console.print(f"[green]✓ Task {task.task_id} created and assigned to {assign_to}[/green]")
+        else:
+            console.print(f"[yellow]Warning: Desk '{assign_to}' not found. Task created unassigned.[/yellow]")
+    else:
+        console.print(f"[green]✓ Task {task.task_id} created[/green]")
+    
+    save_organization(org)
+    console.print(f"Task ID: {task.task_id}")
+
+
+@task.command('list')
+@click.option('--status', help='Filter by status')
+@click.option('--assigned-to', help='Filter by assigned desk')
+def task_list(status, assigned_to):
+    """List all tasks"""
+    org = load_organization()
+    
+    tasks = list(org.tasks.values())
+    
+    if status:
+        tasks = [t for t in tasks if t.status.value == status]
+    if assigned_to:
+        tasks = [t for t in tasks if t.assigned_to == assigned_to]
+    
+    table = Table(title="Tasks")
+    table.add_column("Task ID", style="cyan")
+    table.add_column("Title", style="magenta")
+    table.add_column("Priority", justify="center")
+    table.add_column("Status", style="yellow")
+    table.add_column("Assigned To", style="green")
+    table.add_column("Created", style="blue")
+    
+    for t in tasks:
+        priority_emoji = {
+            Priority.LOW: "🟢",
+            Priority.MEDIUM: "🟡",
+            Priority.HIGH: "🟠",
+            Priority.CRITICAL: "🔴"
+        }
+        
+        table.add_row(
+            t.task_id,
+            t.title[:40] + "..." if len(t.title) > 40 else t.title,
+            priority_emoji.get(t.priority, "⚪"),
+            t.status.value,
+            t.assigned_to or "-",
+            t.created_at.strftime("%Y-%m-%d %H:%M")
+        )
+    
+    console.print(table)
+    console.print(f"\nTotal: {len(tasks)} tasks")
+
+
+@task.command('assign')
+@click.argument('task_id')
+@click.argument('desk_id')
+def task_assign(task_id, desk_id):
+    """Assign a task to a desk"""
+    org = load_organization()
+    
+    task = org.tasks.get(task_id)
+    if not task:
+        console.print(f"[red]Task '{task_id}' not found[/red]")
+        return
+    
+    desk = org.get_desk(desk_id)
+    if not desk:
+        console.print(f"[red]Desk '{desk_id}' not found[/red]")
+        return
+    
+    task.assigned_to = desk_id
+    task.status = TaskStatus.PENDING
+    save_organization(org)
+    
+    console.print(f"[green]✓ Task {task_id} assigned to {desk.title}[/green]")
+
+
+@task.command('process')
+@click.argument('task_id')
+async def task_process_cmd(task_id):
+    """Process a task (run the assigned agent)"""
+    org = load_organization()
+    
+    task = org.tasks.get(task_id)
+    if not task:
+        console.print(f"[red]Task '{task_id}' not found[/red]")
+        return
+    
+    if not task.assigned_to:
+        console.print(f"[red]Task is not assigned to any desk[/red]")
+        return
+    
+    desk = org.get_desk(task.assigned_to)
+    if not desk:
+        console.print(f"[red]Assigned desk '{task.assigned_to}' not found[/red]")
+        return
+    
+    console.print(f"[blue]Processing task {task_id} with {desk.title}...[/blue]")
+    
+    with console.status("[bold green]Agent working..."):
+        result = await desk.process_task(task)
+    
+    console.print(f"[green]✓ Task completed[/green]")
+    console.print(f"Status: {task.status.value}")
+    console.print(f"Result: {result}")
+    
+    save_organization(org)
+
+
+@cli.command()
+def org():
+    """Display organization chart"""
+    org = load_organization()
+    
+    def build_tree(desk: AgentDesk, tree: Tree):
+        subordinates = org.get_subordinates(desk.desk_id)
+        for sub in subordinates:
+            status_emoji = {
+                DeskStatus.ACTIVE: "🟢",
+                DeskStatus.IDLE: "⚪",
+                DeskStatus.BUSY: "🟡",
+                DeskStatus.OFFLINE: "🔴"
+            }
+            
+            label = f"{sub.title} ({sub.desk_id}) {status_emoji.get(sub.status, '')}"
+            branch = tree.add(label)
+            build_tree(sub, branch)
+    
+    # Find root desks (those with no supervisor)
+    roots = [d for d in org.desks.values() if not d.reports_to]
+    
+    main_tree = Tree(f"[bold cyan]{org.org_name}[/bold cyan]")
+    
+    for root in roots:
+        status_emoji = {
+            DeskStatus.ACTIVE: "🟢",
+            DeskStatus.IDLE: "⚪",
+            DeskStatus.BUSY: "🟡",
+            DeskStatus.OFFLINE: "🔴"
+        }
+        
+        label = f"{root.title} ({root.desk_id}) {status_emoji.get(root.status, '')}"
+        branch = main_tree.add(label)
+        build_tree(root, branch)
+    
+    console.print(main_tree)
+    console.print(f"\nTotal desks: {len(org.desks)}")
+    console.print(f"Total tasks: {len(org.tasks)}")
+
+
+@cli.command()
+def run():
+    """Start interactive task processing loop"""
+    org = load_organization()
+    
+    console.print(f"[bold green]AgentDesk Task Processor[/bold green]")
+    console.print(f"Organization: {org.org_name}")
+    console.print(f"Desks: {len(org.desks)}, Tasks: {len(org.tasks)}\n")
+    
+    while True:
+        # Find pending tasks
+        pending = [t for t in org.tasks.values() if t.status == TaskStatus.PENDING and t.assigned_to]
+        
+        if not pending:
+            console.print("[yellow]No pending tasks. Use 'task create' to add tasks.[/yellow]")
+            break
+        
+        console.print(f"\n[cyan]Found {len(pending)} pending tasks:[/cyan]")
+        for i, task in enumerate(pending[:5], 1):
+            console.print(f"{i}. {task.task_id}: {task.title} → {task.assigned_to}")
+        
+        choice = console.input("\n[bold]Process which task? (number or 'q' to quit): [/bold]")
+        
+        if choice.lower() == 'q':
+            break
+        
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(pending):
+                task = pending[idx]
+                asyncio.run(task_process_cmd.callback(task.task_id))
+            else:
+                console.print("[red]Invalid choice[/red]")
+        except ValueError:
+            console.print("[red]Invalid input[/red]")
+
+
+if __name__ == '__main__':
+    # Wrap async commands
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'task' and len(sys.argv) > 2 and sys.argv[2] == 'process':
+        # Run async command
+        asyncio.run(cli())
+    else:
+        cli()

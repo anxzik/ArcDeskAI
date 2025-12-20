@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="dropShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Closed dropdown -->
+  <g id="dropdown-closed">
+    <rect x="4" y="4" width="192" height="36" rx="6" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+    <text x="16" y="26" font-family="Arial, sans-serif" font-size="13" fill="#374151">Select AI Model</text>
+    <path d="M180 18 L184 22 L188 18" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Open dropdown -->
+  <g id="dropdown-open" transform="translate(0, 44)">
+    <rect x="4" y="4" width="192" height="36" rx="6" fill="white" stroke="#6366F1" stroke-width="2"/>
+    <text x="16" y="26" font-family="Arial, sans-serif" font-size="13" fill="#374151">Select AI Model</text>
+    <path d="M180 26 L184 22 L188 26" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Dropdown options -->
+    <rect x="4" y="40" width="192" height="120" rx="6" fill="white" filter="url(#dropShadow)"/>
+    <rect x="4" y="40" width="192" height="120" rx="6" fill="none" stroke="#E5E7EB" stroke-width="1"/>
+    
+    <!-- Options -->
+    <rect x="4" y="40" width="192" height="30" fill="#F3F4F6"/>
+    <text x="16" y="58" font-family="Arial, sans-serif" font-size="12" fill="#111827">GPT-4</text>
+    
+    <rect x="4" y="70" width="192" height="30" fill="white"/>
+    <text x="16" y="88" font-family="Arial, sans-serif" font-size="12" fill="#374151">Claude 3</text>
+    
+    <rect x="4" y="100" width="192" height="30" fill="white"/>
+    <text x="16" y="118" font-family="Arial, sans-serif" font-size="12" fill="#374151">Gemini Pro</text>
+    
+    <rect x="4" y="130" width="192" height="30" fill="white"/>
+    <text x="16" y="148" font-family="Arial, sans-serif" font-size="12" fill="#374151">LLaMA 2</text>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="40" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- OFF State -->
+  <g id="toggle-off">
+    <rect x="4" y="10" width="60" height="20" rx="10" fill="#E5E7EB" stroke="#D1D5DB" stroke-width="1"/>
+    <circle cx="14" cy="20" r="8" fill="white" stroke="#9CA3AF" stroke-width="1"/>
+    <text x="72" y="24" font-family="Arial, sans-serif" font-size="12" fill="#6B7280">Disabled</text>
+  </g>
+  
+  <!-- ON State -->
+  <g id="toggle-on" transform="translate(100, 0)">
+    <rect x="4" y="10" width="60" height="20" rx="10" fill="#10B981" stroke="#059669" stroke-width="1"/>
+    <circle cx="54" cy="20" r="8" fill="white" stroke="#10B981" stroke-width="1"/>
+    <text x="72" y="24" font-family="Arial, sans-serif" font-size="12" fill="#10B981">Enabled</text>
+  </g>
+</svg>

@@ -23,5 +23,4 @@ if _UI_DIR.exists():
 @app.get("/", include_in_schema=False)
 def root() -> RedirectResponse:
     # If the UI is mounted, StaticFiles will handle "/".
-    # This is mainly here to keep behavior clear.
     return RedirectResponse(url="/docs")
