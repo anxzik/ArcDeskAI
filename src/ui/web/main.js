@@ -8,7 +8,7 @@ let mainWindow;app.on('ready', () => {
     webPreferences: {
       nodeIntegration: true,
     },
-  });  mainWindow.loadFile('index.html');
+  });  mainWindow.loadFile('/home/arch/PycharmProjects/ArcDeskAI/ArcDeskAI/src/ui/web/index.html');
 });app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
