@@ -9,7 +9,11 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import asyncio
 import json
-
+import google.generativeai as genai
+import os
+import mlflow
+import chromadb
+from src.utils.security import PIIMasker
 
 class AgentRole(Enum):
     """Standard business roles for agents"""
@@ -67,6 +71,28 @@ class LLMConfig:
         }
 
 
+class KnowledgeBase:
+    """RAG Knowledge Base using ChromaDB"""
+    def __init__(self, collection_name: str = "agent_knowledge", persist_path: str = "./agent_knowledge"):
+        self.client = chromadb.PersistentClient(path=persist_path)
+        self.collection = self.client.get_or_create_collection(name=collection_name)
+        
+    def add_documents(self, documents: List[str], metadatas: List[Dict] = None, ids: List[str] = None):
+        """Add documents to knowledge base"""
+        if ids is None:
+            ids = [f"doc_{datetime.now().timestamp()}_{i}" for i in range(len(documents))]
+        self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
+        
+    def query(self, query_text: str, n_results: int = 3) -> List[str]:
+        """Query knowledge base"""
+        try:
+            results = self.collection.query(query_texts=[query_text], n_results=n_results)
+            return results['documents'][0] if results['documents'] else []
+        except Exception as e:
+            print(f"RAG Query failed: {e}")
+            return []
+
+
 @dataclass
 class AgentMemory:
     """Agent's memory and context"""
@@ -88,6 +114,20 @@ class AgentMemory:
             "content": learning,
             "timestamp": datetime.now().isoformat()
         })
+
+    def export_to_jsonl(self, file_path: str):
+        """Export conversation history to JSONL format for fine-tuning"""
+        with open(file_path, 'w') as f:
+            for i in range(0, len(self.conversation_history) - 1, 2):
+                if i + 1 < len(self.conversation_history):
+                    # Simple user/model pair assumption
+                    entry = {
+                        "messages": [
+                            {"role": self.conversation_history[i]["role"], "content": self.conversation_history[i]["content"]},
+                            {"role": self.conversation_history[i+1]["role"], "content": self.conversation_history[i+1]["content"]}
+                        ]
+                    }
+                    f.write(json.dumps(entry) + '\n')
 
 
 @dataclass
@@ -146,7 +186,8 @@ class AgentDesk:
         capabilities: List[str] = None,
         hierarchy_level: int = 0,
         reports_to: Optional[str] = None,
-        team_id: Optional[str] = None
+        team_id: Optional[str] = None,
+        knowledge_base: Optional[KnowledgeBase] = None
     ):
         self.desk_id = desk_id
         self.title = title
@@ -158,6 +199,7 @@ class AgentDesk:
         self.team_id = team_id
         self.status = DeskStatus.IDLE
         self.memory = AgentMemory()
+        self.knowledge_base = knowledge_base
         self.current_task: Optional[Task] = None
         
     async def process_task(self, task: Task) -> Dict[str, Any]:
@@ -178,9 +220,28 @@ class AgentDesk:
         finally:
             self.status = DeskStatus.IDLE
             self.current_task = None
+            
+    def provide_feedback(self, task_id: str, rating: int, comment: str):
+        """Process feedback for a task to improve future performance"""
+        self.memory.add_learning(f"Feedback for task {task_id}: Rating {rating}/5. Comment: {comment}")
+        # In enterprise version, this would fine-tune the model or update the vector DB
+        if self.knowledge_base:
+            # Store feedback in KB for retrieval
+            self.knowledge_base.add_documents(
+                documents=[f"Feedback on {task_id}: {comment} (Rating: {rating})"],
+                metadatas=[{"type": "feedback", "rating": rating, "task_id": task_id}]
+            )
     
     async def _execute_with_llm(self, task: Task) -> Dict[str, Any]:
         """Execute task with configured LLM (placeholder for actual implementation)"""
+        
+        # RAG: Retrieve context
+        context_str = ""
+        if self.knowledge_base:
+            docs = self.knowledge_base.query(task.description + " " + task.title)
+            if docs:
+                context_str = "\n\nRelevant Organizational Knowledge:\n" + "\n---\n".join(docs)
+
         # Construct prompt based on role and task
         system_prompt = f"""You are a {self.title} in an AI organization.
 Your role is {self.role.value}.
@@ -190,15 +251,48 @@ Task assigned to you:
 Title: {task.title}
 Description: {task.description}
 Priority: {task.priority.name}
+{context_str}
 """
         
-        # Here you would call the actual LLM API based on provider
-        if self.llm_config.provider == "anthropic":
-            return await self._call_anthropic(system_prompt, task)
-        elif self.llm_config.provider == "openai":
-            return await self._call_openai(system_prompt, task)
-        else:
-            return {"result": "LLM integration pending"}
+        # MLflow Tracking
+        try:
+            mlflow.set_experiment("AgentDesk_Operations")
+            
+            with mlflow.start_run(run_name=f"task_{task.task_id}", nested=True):
+                mlflow.log_param("agent_role", self.role.value)
+                mlflow.log_param("agent_title", self.title)
+                mlflow.log_param("task_id", task.task_id)
+                mlflow.log_text(PIIMasker.mask(task.description), "task_description.txt")
+                mlflow.log_param("provider", self.llm_config.provider)
+                mlflow.log_param("model", self.llm_config.model)
+                
+                result = {}
+                # Here you would call the actual LLM API based on provider
+                if self.llm_config.provider == "anthropic":
+                    result = await self._call_anthropic(system_prompt, task)
+                elif self.llm_config.provider == "openai":
+                    result = await self._call_openai(system_prompt, task)
+                elif self.llm_config.provider == "gemini":
+                    result = await self._call_gemini(system_prompt, task)
+                else:
+                    result = {"result": "LLM integration pending"}
+                
+                mlflow.log_param("status", "success" if "error" not in result else "failed")
+                mlflow.log_text(json.dumps(result, default=str), "result.json")
+                
+                return result
+        except Exception as e:
+            # Fallback if MLflow fails (e.g. connection error)
+            print(f"MLflow logging failed: {e}")
+            # Still execute if we haven't yet
+            if 'result' not in locals():
+                 if self.llm_config.provider == "anthropic":
+                    return await self._call_anthropic(system_prompt, task)
+                 elif self.llm_config.provider == "openai":
+                    return await self._call_openai(system_prompt, task)
+                 elif self.llm_config.provider == "gemini":
+                    return await self._call_gemini(system_prompt, task)
+            return {"error": f"Execution failed: {str(e)}"}
     
     async def _call_anthropic(self, system_prompt: str, task: Task) -> Dict[str, Any]:
         """Call Anthropic Claude API"""
@@ -220,6 +314,30 @@ Priority: {task.priority.name}
             "model": self.llm_config.model,
             "result": "Task completed (implementation pending)"
         }
+
+    async def _call_gemini(self, system_prompt: str, task: Task) -> Dict[str, Any]:
+        """Call Google Gemini API"""
+        api_key = self.llm_config.api_key or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+             return {"error": "Gemini API key not found"}
+
+        genai.configure(api_key=api_key)
+        
+        # Combine system prompt and task details
+        full_prompt = f"{system_prompt}\n\nTask: {task.title}\n{task.description}"
+        
+        try:
+            # Run blocking call in thread
+            model = genai.GenerativeModel(self.llm_config.model or "gemini-pro")
+            response = await asyncio.to_thread(model.generate_content, full_prompt)
+            
+            return {
+                "provider": "gemini",
+                "model": self.llm_config.model,
+                "result": response.text
+            }
+        except Exception as e:
+            return {"error": str(e)}
     
     def can_delegate_to(self, other_desk: 'AgentDesk') -> bool:
         """Check if this desk can delegate to another desk"""
@@ -244,6 +362,154 @@ Priority: {task.priority.name}
         }
 
 
+@dataclass
+class Team:
+    team_id: str
+    name: str
+    lead: str  # desk_id of the lead agent
+    members: List[str]  # list of desk_ids
+    focus: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class Committee:
+    committee_id: str
+    name: str
+    chair: str  # desk_id of the chair agent
+    members: List[str]  # list of desk_ids
+    purpose: Optional[str] = None
+    meeting_frequency: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class QAPipelineStage:
+    type: str
+    agent: Optional[str] = None
+    assignee_level: Optional[str] = None
+    required_reviewers: Optional[int] = None
+    criteria: Optional[List[str]] = field(default_factory=list)
+    timeout: Optional[int] = None
+    block_on_critical: Optional[bool] = None
+    required_for_types: Optional[List[str]] = field(default_factory=list)
+    assessment_areas: Optional[List[str]] = field(default_factory=list)
+    frameworks: Optional[List[str]] = field(default_factory=list)
+    required_for_priority: Optional[List[str]] = field(default_factory=list)
+    approval_criteria: Optional[List[str]] = field(default_factory=list)
+    tools: Optional[List[str]] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class QAPipeline:
+    enabled: bool = True
+    required_for: List[str] = field(default_factory=list)
+    stages: List[QAPipelineStage] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "enabled": self.enabled,
+            "required_for": self.required_for,
+            "stages": [stage.to_dict() for stage in self.stages]
+        }
+
+@dataclass
+class WorkflowStep:
+    name: str
+    assigned_role: Optional[str] = None
+    assigned_agent: Optional[str] = None
+    committee: Optional[str] = None
+    team: Optional[str] = None
+    outputs: List[str] = field(default_factory=list)
+    inputs: List[str] = field(default_factory=list)
+    condition: Optional[str] = None
+    qa_required: bool = False
+    max_duration: Optional[int] = None
+    verification_required: bool = False
+    tools: Optional[List[str]] = field(default_factory=list)
+    focus_areas: Optional[List[str]] = field(default_factory=list)
+    test_types: Optional[List[str]] = field(default_factory=list)
+    required_for: Optional[List[str]] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class Workflow:
+    name: str
+    trigger: str
+    steps: List[WorkflowStep] = field(default_factory=list)
+    priority: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "trigger": self.trigger,
+            "steps": [step.to_dict() for step in self.steps],
+            "priority": self.priority
+        }
+
+@dataclass
+class TaskRoutingRule:
+    keywords: List[str] = field(default_factory=list)
+    route_to: Optional[str] = None
+    escalate_if_critical: Optional[str] = None
+    notify_committee: Optional[str] = None
+    escalate_to: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class NotificationChannel:
+    type: str
+    webhook_url: Optional[str] = None
+    recipients: List[str] = field(default_factory=list)
+    integration_key: Optional[str] = None
+    notify_on: List[str] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class MetricsDashboard:
+    name: str
+    metrics: List[str] = field(default_factory=list)
+    refresh_interval: Optional[int] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
+@dataclass
+class MetricsConfig:
+    track: List[str] = field(default_factory=list)
+    dashboards: List[MetricsDashboard] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "track": self.track,
+            "dashboards": [dashboard.to_dict() for dashboard in self.dashboards]
+        }
+
+@dataclass
+class AgentBehavior:
+    communication_style: Optional[str] = None
+    decision_making: Optional[str] = None
+    escalation_threshold: Optional[str] = None
+    automation_preference: Optional[str] = None
+    negotiation_style: Optional[str] = None
+    research_depth: Optional[str] = None
+    ioc_extraction: Optional[str] = None
+    report_format: Optional[str] = None
+    documentation_level: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.__dict__
+
 class OrganizationStructure:
     """Manages the organizational hierarchy"""
     
@@ -251,6 +517,15 @@ class OrganizationStructure:
         self.org_name = org_name
         self.desks: Dict[str, AgentDesk] = {}
         self.tasks: Dict[str, Task] = {}
+        self.teams: Dict[str, Team] = {}
+        self.committees: Dict[str, Committee] = {}
+        self.qa_pipeline: Optional[QAPipeline] = None
+        self.workflows: Dict[str, Workflow] = {}
+        self.task_routing_rules: List[TaskRoutingRule] = []
+        self.notifications: List[NotificationChannel] = []
+        self.metrics: Optional[MetricsConfig] = None
+        self.agent_behaviors: Dict[str, AgentBehavior] = {}
+
         
     def add_desk(self, desk: AgentDesk):
         """Add an agent desk to the organization"""
