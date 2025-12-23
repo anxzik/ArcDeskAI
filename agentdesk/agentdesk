@@ -27,14 +27,18 @@ from datetime import datetime
 
 # Import from our core module (adjust path as needed)
 # For standalone use, you may need to modify imports
-try:
-    from agentdesk_core import (
-        AgentDesk, AgentRole, LLMConfig, OrganizationStructure,
-        Task, TaskStatus, Priority, DeskStatus
-    )
-except ImportError:
-    print("Error: Could not import agentdesk_core. Make sure it's in your Python path.")
-    sys.exit(1)
+import sys
+from pathlib import Path
+
+# Add the parent directory of src/core to the Python path
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from core.agent import (
+    AgentDesk, AgentRole, LLMConfig, OrganizationStructure,
+    Task, TaskStatus, Priority, DeskStatus,
+    Team, Committee, QAPipelineStage, QAPipeline, WorkflowStep, Workflow,
+    TaskRoutingRule, NotificationChannel, MetricsDashboard, MetricsConfig, AgentBehavior
+)
 
 console = Console()
 
@@ -82,20 +86,139 @@ def load_organization() -> OrganizationStructure:
         )
         org.add_desk(desk)
     
-    # Recreate tasks
-    for task_data in data.get('tasks', []):
-        task = Task(
-            task_id=task_data['task_id'],
-            title=task_data['title'],
-            description=task_data['description'],
-            created_by=task_data['created_by'],
-            assigned_to=task_data.get('assigned_to'),
-            status=TaskStatus(task_data['status']),
-            priority=Priority(task_data['priority']),
-            qa_required=task_data.get('qa_required', True)
+    # Recreate teams
+    for team_data in data.get('teams', []):
+        team = Team(
+            team_id=team_data['team_id'],
+            name=team_data['name'],
+            lead=team_data['lead'],
+            members=team_data['members'],
+            focus=team_data.get('focus')
         )
-        org.tasks[task.task_id] = task
-    
+        org.teams[team.team_id] = team
+
+    # Recreate committees
+    for committee_data in data.get('committees', []):
+        committee = Committee(
+            committee_id=committee_data['committee_id'],
+            name=committee_data['name'],
+            chair=committee_data['chair'],
+            members=committee_data['members'],
+            purpose=committee_data.get('purpose'),
+            meeting_frequency=committee_data.get('meeting_frequency')
+        )
+        org.committees[committee.committee_id] = committee
+
+    # Recreate QA Pipeline
+    if 'qa_pipeline' in data and data['qa_pipeline']:
+        qa_pipeline_data = data['qa_pipeline']
+        stages = []
+        for stage_data in qa_pipeline_data.get('stages', []):
+            stage = QAPipelineStage(
+                type=stage_data['type'],
+                agent=stage_data.get('agent'),
+                assignee_level=stage_data.get('assignee_level'),
+                required_reviewers=stage_data.get('required_reviewers'),
+                criteria=stage_data.get('criteria', []),
+                timeout=stage_data.get('timeout'),
+                block_on_critical=stage_data.get('block_on_critical'),
+                required_for_types=stage_data.get('required_for_types', []),
+                assessment_areas=stage_data.get('assessment_areas', []),
+                frameworks=stage_data.get('frameworks', []),
+                required_for_priority=stage_data.get('required_for_priority', []),
+                approval_criteria=stage_data.get('approval_criteria', []),
+                tools=stage_data.get('tools', [])
+            )
+            stages.append(stage)
+        org.qa_pipeline = QAPipeline(
+            enabled=qa_pipeline_data.get('enabled', True),
+            required_for=qa_pipeline_data.get('required_for', []),
+            stages=stages
+        )
+
+    # Recreate Workflows
+    for workflow_id, workflow_data in data.get('workflows', {}).items():
+        steps = []
+        for step_data in workflow_data.get('steps', []):
+            step = WorkflowStep(
+                name=step_data['name'],
+                assigned_role=step_data.get('assigned_role'),
+                assigned_agent=step_data.get('assigned_agent'),
+                committee=step_data.get('committee'),
+                team=step_data.get('team'),
+                outputs=step_data.get('outputs', []),
+                inputs=step_data.get('inputs', []),
+                condition=step_data.get('condition'),
+                qa_required=step_data.get('qa_required', False),
+                max_duration=step_data.get('max_duration'),
+                verification_required=step_data.get('verification_required', False),
+                tools=step_data.get('tools', []),
+                focus_areas=step_data.get('focus_areas', []),
+                test_types=step_data.get('test_types', []),
+                required_for=step_data.get('required_for', [])
+            )
+            steps.append(step)
+        workflow = Workflow(
+            name=workflow_data['name'],
+            trigger=workflow_data['trigger'],
+            steps=steps,
+            priority=workflow_data.get('priority')
+        )
+        org.workflows[workflow_id] = workflow
+
+    # Recreate Task Routing Rules
+    for rule_data in data.get('task_routing_rules', []):
+        rule = TaskRoutingRule(
+            keywords=rule_data.get('keywords', []),
+            route_to=rule_data.get('route_to'),
+            escalate_if_critical=rule_data.get('escalate_if_critical'),
+            notify_committee=rule_data.get('notify_committee'),
+            escalate_to=rule_data.get('escalate_to')
+        )
+        org.task_routing_rules.append(rule)
+
+    # Recreate Notifications
+    for channel_data in data.get('notifications', []):
+        channel = NotificationChannel(
+            type=channel_data['type'],
+            webhook_url=channel_data.get('webhook_url'),
+            recipients=channel_data.get('recipients', []),
+            integration_key=channel_data.get('integration_key'),
+            notify_on=channel_data.get('notify_on', [])
+        )
+        org.notifications.append(channel)
+
+    # Recreate Metrics
+    if 'metrics' in data and data['metrics']:
+        metrics_data = data['metrics']
+        dashboards = []
+        for dashboard_data in metrics_data.get('dashboards', []):
+            dashboard = MetricsDashboard(
+                name=dashboard_data['name'],
+                metrics=dashboard_data.get('metrics', []),
+                refresh_interval=dashboard_data.get('refresh_interval')
+            )
+            dashboards.append(dashboard)
+        org.metrics = MetricsConfig(
+            track=metrics_data.get('track', []),
+            dashboards=dashboards
+        )
+
+    # Recreate Agent Behaviors
+    for agent_id, behavior_data in data.get('agent_behaviors', {}).items():
+        behavior = AgentBehavior(
+            communication_style=behavior_data.get('communication_style'),
+            decision_making=behavior_data.get('decision_making'),
+            escalation_threshold=behavior_data.get('escalation_threshold'),
+            automation_preference=behavior_data.get('automation_preference'),
+            negotiation_style=behavior_data.get('negotiation_style'),
+            research_depth=behavior_data.get('research_depth'),
+            ioc_extraction=behavior_data.get('ioc_extraction'),
+            report_format=behavior_data.get('report_format'),
+            documentation_level=behavior_data.get('documentation_level')
+        )
+        org.agent_behaviors[agent_id] = behavior
+
     _org = org
     return org
 
@@ -108,6 +231,14 @@ def save_organization(org: OrganizationStructure):
         'name': org.org_name,
         'desks': [desk.to_dict() for desk in org.desks.values()],
         'tasks': [task.to_dict() for task in org.tasks.values()],
+        'teams': [team.to_dict() for team in org.teams.values()],
+        'committees': [committee.to_dict() for committee in org.committees.values()],
+        'qa_pipeline': org.qa_pipeline.to_dict() if org.qa_pipeline else None,
+        'workflows': {wf_id: wf.to_dict() for wf_id, wf in org.workflows.items()},
+        'task_routing_rules': [rule.to_dict() for rule in org.task_routing_rules],
+        'notifications': [channel.to_dict() for channel in org.notifications],
+        'metrics': org.metrics.to_dict() if org.metrics else None,
+        'agent_behaviors': {agent_id: behavior.to_dict() for agent_id, behavior in org.agent_behaviors.items()},
         'saved_at': datetime.now().isoformat()
     }
     
@@ -124,17 +255,20 @@ def cli():
 
 
 @cli.command()
-@click.option('--name', prompt='Organization name', help='Name of your organization')
+@click.option('--name', help='Name of your organization')
 @click.option('--from-file', type=click.Path(exists=True), help='Load from YAML config file')
-def init(name: str, from_file: Optional[str]):
+def init(name: Optional[str], from_file: Optional[str]):
     """Initialize a new organization"""
     
+    global _org
+
     if from_file:
         with open(from_file, 'r') as f:
             config = yaml.safe_load(f)
         
-        org = OrganizationStructure(config['organization']['name'])
-        
+        org_name_from_file = config['organization']['name']
+        org = OrganizationStructure(org_name_from_file)
+        console.print(f"[yellow]DEBUG: Desks before loading: {len(org.desks)}[/yellow]")
         # Create desks from config
         for desk_cfg in config['organization'].get('desks', []):
             llm_cfg = desk_cfg['llm']
@@ -156,13 +290,156 @@ def init(name: str, from_file: Optional[str]):
                 team_id=desk_cfg.get('team_id')
             )
             org.add_desk(desk)
-        
+            console.print(f"[yellow]DEBUG: Added desk {desk.desk_id}. Current desks: {len(org.desks)}[/yellow]")
+
+        # Load teams
+        for team_cfg in config['teams']:
+            team = Team(
+                team_id=team_cfg['id'],
+                name=team_cfg['name'],
+                lead=team_cfg['lead'],
+                members=team_cfg['members'],
+                focus=team_cfg.get('focus')
+            )
+            org.teams[team.team_id] = team
+
+        # Load committees
+        for committee_cfg in config['committees']:
+            committee = Committee(
+                committee_id=committee_cfg['id'],
+                name=committee_cfg['name'],
+                chair=committee_cfg['chair'],
+                members=committee_cfg['members'],
+                purpose=committee_cfg.get('purpose'),
+                meeting_frequency=committee_cfg.get('meeting_frequency')
+            )
+            org.committees[committee.committee_id] = committee
+
+        # Load QA Pipeline
+        if 'qa_pipeline' in config:
+            qa_pipeline_cfg = config['qa_pipeline']
+            stages = []
+            for stage_cfg in qa_pipeline_cfg.get('stages', []):
+                stage = QAPipelineStage(
+                    type=stage_cfg['type'],
+                    agent=stage_cfg.get('agent'),
+                    assignee_level=stage_cfg.get('assignee_level'),
+                    required_reviewers=stage_cfg.get('required_reviewers'),
+                    criteria=stage_cfg.get('criteria', []),
+                    timeout=stage_cfg.get('timeout'),
+                    block_on_critical=stage_cfg.get('block_on_critical'),
+                    required_for_types=stage_cfg.get('required_for_types', []),
+                    assessment_areas=stage_cfg.get('assessment_areas', []),
+                    frameworks=stage_cfg.get('frameworks', []),
+                    required_for_priority=stage_cfg.get('required_for_priority', []),
+                    approval_criteria=stage_cfg.get('approval_criteria', []),
+                    tools=stage_cfg.get('tools', [])
+                )
+                stages.append(stage)
+            org.qa_pipeline = QAPipeline(
+                enabled=qa_pipeline_cfg.get('enabled', True),
+                required_for=qa_pipeline_cfg.get('required_for', []),
+                stages=stages
+            )
+
+        # Load Workflows
+        if 'workflows' in config:
+            for workflow_id, workflow_cfg in config['workflows'].items():
+                steps = []
+                for step_cfg in workflow_cfg.get('steps', []):
+                    step = WorkflowStep(
+                        name=step_cfg['name'],
+                        assigned_role=step_cfg.get('assigned_role'),
+                        assigned_agent=step_cfg.get('assigned_agent'),
+                        committee=step_cfg.get('committee'),
+                        team=step_cfg.get('team'),
+                        outputs=step_cfg.get('outputs', []),
+                        inputs=step_cfg.get('inputs', []),
+                        condition=step_cfg.get('condition'),
+                        qa_required=step_cfg.get('qa_required', False),
+                        max_duration=step_cfg.get('max_duration'),
+                        verification_required=step_cfg.get('verification_required', False),
+                        tools=step_cfg.get('tools', []),
+                        focus_areas=step_cfg.get('focus_areas', []),
+                        test_types=step_cfg.get('test_types', []),
+                        required_for=step_cfg.get('required_for', [])
+                    )
+                    steps.append(step)
+                workflow = Workflow(
+                    name=workflow_cfg['name'],
+                    trigger=workflow_cfg['trigger'],
+                    steps=steps,
+                    priority=workflow_cfg.get('priority')
+                )
+                org.workflows[workflow_id] = workflow
+
+        # Load Task Routing Rules
+        if 'task_routing' in config:
+            for rule_cfg in config['task_routing'].get('rules', []):
+                rule = TaskRoutingRule(
+                    keywords=rule_cfg.get('keywords', []),
+                    route_to=rule_cfg.get('route_to'),
+                    escalate_if_critical=rule_cfg.get('escalate_if_critical'),
+                    notify_committee=rule_cfg.get('notify_committee'),
+                    escalate_to=rule_cfg.get('escalate_to')
+                )
+                org.task_routing_rules.append(rule)
+
+        # Load Notifications
+        if 'notifications' in config:
+            for channel_cfg in config['notifications'].get('channels', []):
+                channel = NotificationChannel(
+                    type=channel_cfg['type'],
+                    webhook_url=channel_cfg.get('webhook_url'),
+                    recipients=channel_cfg.get('recipients', []),
+                    integration_key=channel_cfg.get('integration_key'),
+                    notify_on=channel_cfg.get('notify_on', [])
+                )
+                org.notifications.append(channel)
+
+        # Load Metrics
+        if 'metrics' in config:
+            metrics_cfg = config['metrics']
+            dashboards = []
+            for dashboard_cfg in metrics_cfg.get('dashboards', []):
+                dashboard = MetricsDashboard(
+                    name=dashboard_cfg['name'],
+                    metrics=dashboard_cfg.get('metrics', []),
+                    refresh_interval=dashboard_cfg.get('refresh_interval')
+                )
+                dashboards.append(dashboard)
+            org.metrics = MetricsConfig(
+                track=metrics_cfg.get('track', []),
+                dashboards=dashboards
+            )
+
+        # Load Agent Behaviors
+        if 'agent_behaviors' in config:
+            for agent_id, behavior_cfg in config['agent_behaviors'].items():
+                behavior = AgentBehavior(
+                    communication_style=behavior_cfg.get('communication_style'),
+                    decision_making=behavior_cfg.get('decision_making'),
+                    escalation_threshold=behavior_cfg.get('escalation_threshold'),
+                    automation_preference=behavior_cfg.get('automation_preference'),
+                    negotiation_style=behavior_cfg.get('negotiation_style'),
+                    research_depth=behavior_cfg.get('research_depth'),
+                    ioc_extraction=behavior_cfg.get('ioc_extraction'),
+                    report_format=behavior_cfg.get('report_format'),
+                    documentation_level=behavior_cfg.get('documentation_level')
+                )
+                org.agent_behaviors[agent_id] = behavior
+
         save_organization(org)
+        _org = org
         console.print(f"[green]✓ Organization '{org.org_name}' initialized from {from_file}[/green]")
         console.print(f"[blue]Created {len(org.desks)} agent desks[/blue]")
+        console.print(f"[blue]Loaded {len(org.teams)} teams, {len(org.committees)} committees, {len(org.workflows)} workflows[/blue]")
     else:
+        if name is None:
+            name = click.prompt('Organization name')
         org = OrganizationStructure(name)
         save_organization(org)
+        _org = org
         console.print(f"[green]✓ Organization '{name}' initialized[/green]")
         console.print("[yellow]Add agent desks with: agentdesk desk add[/yellow]")
 

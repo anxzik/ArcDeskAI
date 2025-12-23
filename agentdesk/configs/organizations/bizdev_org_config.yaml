@@ -1,0 +1,611 @@
+# AgentDesk Organization Configuration for Business Development and Product Management
+
+organization:
+  name: "BizDev & Product Management Org"
+  description: "Automated business development, sales, and product lifecycle management"
+
+desks:
+  # Executive Level
+  - id: "cbo-001"
+    title: "Chief Business Officer"
+    role: "executive"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.7
+      max_tokens: 4000
+    capabilities:
+      - strategic_planning
+      - market_analysis
+      - partnership_development
+      - business_strategy
+      - executive_oversight
+    hierarchy_level: 1
+    
+  - id: "cpo-001"
+    title: "Chief Product Officer"
+    role: "executive"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.6
+      max_tokens: 4000
+    capabilities:
+      - product_vision
+      - roadmap_strategy
+      - market_research_oversight
+      - user_experience_strategy
+      - product_lifecycle_management
+    hierarchy_level: 1
+    
+  # Management Level
+  - id: "lead-gen-manager-001"
+    title: "Lead Generation Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "cbo-001"
+    team_id: "lead-generation"
+    capabilities:
+      - campaign_management
+      - lead_qualification_strategy
+      - data_analysis
+      - team_coordination
+      - outreach_strategy
+    hierarchy_level: 2
+    
+  - id: "sales-manager-001"
+    title: "Sales Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "cbo-001"
+    team_id: "sales"
+    capabilities:
+      - sales_strategy
+      - deal_closing
+      - pipeline_management
+      - team_coordination
+      - negotiation
+    hierarchy_level: 2
+    
+  - id: "product-manager-001"
+    title: "Product Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "cpo-001"
+    team_id: "product-management"
+    capabilities:
+      - product_roadmap_planning
+      - requirements_gathering
+      - stakeholder_communication
+      - agile_sprint_management
+      - market_analysis
+    hierarchy_level: 2
+
+  # Senior Level
+  - id: "market-research-001"
+    title: "Market Research Specialist"
+    role: "researcher"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "product-manager-001"
+    team_id: "product-management"
+    capabilities:
+      - market_segmentation
+      - competitive_analysis
+      - trend_identification
+      - data_synthesis
+      - report_generation
+    tools:
+      - web_scraper
+      - data_analyzer
+    hierarchy_level: 3
+    
+  - id: "sdr-001"
+    title: "Sales Development Representative"
+    role: "engineer" # Using engineer role for agent that executes tasks
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "lead-gen-manager-001"
+    team_id: "lead-generation"
+    capabilities:
+      - lead_qualification
+      - initial_outreach
+      - meeting_scheduling
+      - CRM_management
+      - communication_automation
+    tools:
+      - email_sender
+      - linkedin_scraper
+      - crm_api
+    hierarchy_level: 3
+    
+  - id: "ae-001"
+    title: "Account Executive"
+    role: "senior_engineer" # Using senior_engineer for agent that closes deals
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "sales-manager-001"
+    team_id: "sales"
+    capabilities:
+      - sales_pitch_delivery
+      - proposal_generation
+      - contract_negotiation
+      - relationship_building
+      - deal_closing
+    tools:
+      - document_generator
+      - crm_api
+      - contract_management_tool
+    hierarchy_level: 3
+    
+  - id: "ux-researcher-001"
+    title: "UX Researcher"
+    role: "researcher"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "product-manager-001"
+    team_id: "user-experience"
+    capabilities:
+      - user_interview_design
+      - usability_testing
+      - feedback_analysis
+      - user_story_creation
+      - persona_development
+    tools:
+      - survey_tool
+      - analytics_api
+    hierarchy_level: 3
+    
+  - id: "product-owner-001"
+    title: "Product Owner"
+    role: "manager" # Acts as a manager for backlog
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "product-manager-001"
+    team_id: "product-management"
+    capabilities:
+      - backlog_management
+      - user_story_refinement
+      - sprint_planning_support
+      - acceptance_criteria_definition
+    hierarchy_level: 3
+
+  # Mid Level
+  - id: "bdr-001"
+    title: "Business Development Representative"
+    role: "engineer"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "sdr-001"
+    team_id: "lead-generation"
+    capabilities:
+      - cold_outreach
+      - prospect_research
+      - initial_qualification
+      - data_entry
+    tools:
+      - email_sender
+      - web_scraper
+      - crm_api
+    hierarchy_level: 4
+    
+  - id: "csm-001"
+    title: "Customer Success Manager"
+    role: "engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "sales-manager-001"
+    team_id: "sales"
+    capabilities:
+      - customer_onboarding
+      - relationship_management
+      - issue_resolution
+      - feedback_collection
+      - upsell_identification
+    tools:
+      - helpdesk_api
+      - crm_api
+      - survey_tool
+    hierarchy_level: 4
+
+teams:
+  - id: "lead-generation"
+    name: "Lead Generation Team"
+    lead: "lead-gen-manager-001"
+    members:
+      - "lead-gen-manager-001"
+      - "sdr-001"
+      - "bdr-001"
+    focus: "Identifying, qualifying, and nurturing new business leads"
+    
+  - id: "sales"
+    name: "Sales Team"
+    lead: "sales-manager-001"
+    members:
+      - "sales-manager-001"
+      - "ae-001"
+      - "csm-001"
+    focus: "Managing the sales pipeline, closing deals, and ensuring customer success"
+    
+  - id: "product-management"
+    name: "Product Management Team"
+    lead: "product-manager-001"
+    members:
+      - "product-manager-001"
+      - "market-research-001"
+      - "product-owner-001"
+    focus: "Defining product vision, strategy, and roadmap"
+    
+  - id: "user-experience"
+    name: "User Experience Team"
+    lead: "ux-researcher-001" # UX Researcher can lead this focused team
+    members:
+      - "ux-researcher-001"
+    focus: "Understanding user needs and ensuring optimal product usability"
+
+committees:
+  - id: "product-strategy-committee"
+    name: "Product Strategy Review Board"
+    chair: "cpo-001"
+    members:
+      - "cpo-001"
+      - "product-manager-001"
+      - "market-research-001"
+      - "cbo-001"
+    purpose: "Review and approve major product strategies, roadmaps, and market entry plans"
+    meeting_frequency: "monthly"
+    
+  - id: "go-to-market-committee"
+    name: "Go-to-Market Planning Committee"
+    chair: "cbo-001"
+    members:
+      - "cbo-001"
+      - "lead-gen-manager-001"
+      - "sales-manager-001"
+      - "product-manager-001"
+    purpose: "Coordinate launch strategies, sales enablement, and marketing efforts for new products/features"
+    meeting_frequency: "bi-weekly"
+    
+  - id: "customer-feedback-loop"
+    name: "Customer Feedback Loop Committee"
+    chair: "product-manager-001"
+    members:
+      - "product-manager-001"
+      - "ux-researcher-001"
+      - "csm-001"
+      - "ae-001"
+    purpose: "Collect, analyze, and prioritize customer feedback to inform product development"
+    meeting_frequency: "weekly"
+
+qa_pipeline:
+  enabled: true
+  required_for:
+    - "lead_profile"
+    - "sales_pitch"
+    - "proposal"
+    - "contract"
+    - "user_story"
+    - "product_requirement_document"
+    
+  stages:
+    - type: "lead_quality_check"
+      agent: "lead-gen-manager-001"
+      criteria:
+        - "data_accuracy"
+        - "qualification_score"
+        - "fit_to_ideal_customer_profile"
+      timeout: 180
+      block_on_low_quality: true
+      
+    - type: "sales_pitch_review"
+      agent: "sales-manager-001"
+      required_for_types:
+        - "new_product_pitch"
+        - "high_value_client_pitch"
+      criteria:
+        - "clarity"
+        - "persuasiveness"
+        - "objection_handling_strategy"
+        
+    - type: "prd_review"
+      agent: "product-manager-001"
+      required_for_priority: ["high", "critical"]
+      criteria:
+        - "completeness"
+        - "clarity"
+        - "feasibility"
+        - "market_alignment"
+        
+    - type: "user_story_acceptance"
+      agent: "product-owner-001"
+      required_for_types:
+        - "new_feature_story"
+        - "bug_fix_story"
+      criteria:
+        - "meets_definition_of_done"
+        - "testable"
+        - "adds_value"
+        
+    - type: "contract_review"
+      agent: "cbo-001"
+      required_for_priority: ["critical"]
+      criteria:
+        - "legal_compliance"
+        - "business_terms_alignment"
+        - "risk_assessment"
+
+workflows:
+  lead_qualification_nurturing:
+    name: "Lead Qualification & Nurturing Workflow"
+    trigger: "new_lead_identified"
+    steps:
+      - name: "Initial Prospect Research"
+        assigned_role: "engineer" # BDR
+        outputs:
+          - "basic_company_info"
+          - "contact_details"
+          
+      - name: "Automated Initial Outreach"
+        assigned_role: "engineer" # SDR
+        inputs: ["basic_company_info", "contact_details"]
+        outputs:
+          - "outreach_email_sent"
+          - "engagement_score"
+          
+      - name: "Lead Qualification Call"
+        assigned_role: "engineer" # SDR
+        inputs: ["engagement_score"]
+        outputs:
+          - "qualified_lead_status"
+          - "meeting_scheduled"
+          
+      - name: "Nurturing Sequence"
+        assigned_role: "engineer" # SDR
+        condition: "qualified_lead_status == 'not_ready'"
+        outputs:
+          - "content_delivered"
+          - "follow_up_scheduled"
+          
+      - name: "Handover to Sales"
+        assigned_role: "manager" # Lead Gen Manager
+        condition: "qualified_lead_status == 'ready_for_sales'"
+        outputs:
+          - "sales_handover_report"
+          
+  sales_cycle_management:
+    name: "Sales Cycle Management Workflow"
+    trigger: "lead_handed_over_to_sales"
+    steps:
+      - name: "Discovery Call"
+        assigned_role: "senior_engineer" # AE
+        inputs: ["sales_handover_report"]
+        outputs:
+          - "customer_needs_identified"
+          - "solution_fit_assessment"
+          
+      - name: "Proposal Generation"
+        assigned_role: "senior_engineer" # AE
+        inputs: ["customer_needs_identified", "solution_fit_assessment"]
+        qa_required: true # Sales Pitch Review
+        outputs:
+          - "custom_proposal_document"
+          
+      - name: "Negotiation & Objection Handling"
+        assigned_role: "senior_engineer" # AE
+        outputs:
+          - "negotiation_summary"
+          - "deal_terms_agreed"
+          
+      - name: "Contract Management"
+        assigned_role: "senior_engineer" # AE
+        inputs: ["deal_terms_agreed"]
+        qa_required: true # Contract Review
+        outputs:
+          - "signed_contract"
+          
+      - name: "Deal Closure & Onboarding Handoff"
+        assigned_role: "manager" # Sales Manager
+        outputs:
+          - "closed_deal_notification"
+          - "onboarding_brief"
+          
+  new_feature_development_from_feedback:
+    name: "New Feature Development from User Feedback Workflow"
+    trigger: "critical_user_feedback_identified"
+    steps:
+      - name: "Feedback Analysis & Prioritization"
+        assigned_role: "researcher" # UX Researcher
+        committee: "customer-feedback-loop"
+        outputs:
+          - "prioritized_user_story"
+          - "impact_assessment"
+          
+      - name: "Product Requirement Document Creation"
+        assigned_role: "manager" # Product Manager
+        inputs: ["prioritized_user_story", "impact_assessment"]
+        qa_required: true # PRD Review
+        outputs:
+          - "final_prd"
+          
+      - name: "User Story Refinement"
+        assigned_role: "manager" # Product Owner
+        inputs: ["final_prd"]
+        outputs:
+          - "refined_user_stories"
+          - "acceptance_criteria"
+          
+      - name: "Development Handoff"
+        assigned_role: "manager" # Product Manager
+        outputs:
+          - "development_ready_stories"
+          
+      - name: "User Story Acceptance Testing"
+        assigned_role: "manager" # Product Owner
+        qa_required: true # User Story Acceptance
+        outputs:
+          - "accepted_user_stories"
+
+  customer_onboarding_feedback:
+    name: "Customer Onboarding & Feedback Workflow"
+    trigger: "new_deal_closed"
+    steps:
+      - name: "Onboarding Kickoff"
+        assigned_role: "engineer" # CSM
+        inputs: ["onboarding_brief"]
+        outputs:
+          - "onboarding_plan"
+          - "customer_welcome_kit"
+          
+      - name: "Initial Setup & Training"
+        assigned_role: "engineer" # CSM
+        outputs:
+          - "customer_onboarded_status"
+          - "training_completed"
+          
+      - name: "Regular Check-ins & Support"
+        assigned_role: "engineer" # CSM
+        outputs:
+          - "customer_health_score"
+          - "support_tickets_resolved"
+          
+      - name: "Feedback Collection"
+        assigned_role: "engineer" # CSM
+        outputs:
+          - "customer_satisfaction_survey_results"
+          - "feature_requests_collected"
+          
+      - name: "Feedback Loop to Product"
+        assigned_role: "manager" # Product Manager
+        inputs: ["feature_requests_collected"]
+        outputs:
+          - "feedback_integrated_into_backlog"
+
+task_routing:
+  rules:
+    - keywords: ["new lead", "prospect", "outreach"]
+      route_to: "sdr-001"
+      escalate_if_critical: "lead-gen-manager-001"
+      
+    - keywords: ["RFP", "proposal", "negotiation", "contract"]
+      route_to: "ae-001"
+      escalate_if_critical: "sales-manager-001"
+      
+    - keywords: ["feature request", "user story", "roadmap", "product backlog"]
+      route_to: "product-owner-001"
+      notify_committee: "product-strategy-committee"
+      
+    - keywords: ["user feedback", "usability", "UX research"]
+      route_to: "ux-researcher-001"
+      notify_committee: "customer-feedback-loop"
+      
+    - keywords: ["customer onboarding", "customer success", "support issue"]
+      route_to: "csm-001"
+      
+    - keywords: ["market trend", "competitor analysis", "market segment"]
+      route_to: "market-research-001"
+
+notifications:
+  channels:
+    - type: "slack"
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      notify_on:
+        - "new_qualified_lead"
+        - "deal_closed"
+        - "critical_product_feedback"
+        - "contract_signed"
+        
+    - type: "email"
+      recipients: ["bizdev-team@company.com", "product-team@company.com"]
+      notify_on:
+        - "lead_gen_qa_failure"
+        - "sales_pitch_review_needed"
+        - "prd_review_needed"
+        - "user_story_acceptance_needed"
+        
+    - type: "pagerduty"
+      integration_key: "${PAGERDUTY_KEY}"
+      notify_on:
+        - "critical_deal_at_risk"
+        - "major_product_issue_from_feedback"
+
+metrics:
+  track:
+    - "leads_generated_rate"
+    - "lead_conversion_rate"
+    - "sales_pipeline_value"
+    - "average_deal_size"
+    - "customer_acquisition_cost"
+    - "feature_adoption_rate"
+    - "customer_satisfaction_score"
+    - "user_story_cycle_time"
+    - "rfp_win_rate"
+    
+  dashboards:
+    - name: "Business Development Overview"
+      refresh_interval: 300 # seconds
+      metrics:
+        - "total_leads"
+        - "qualified_leads"
+        - "sales_pipeline_value"
+        - "closed_deals_this_month"
+        
+    - name: "Product Health Dashboard"
+      metrics:
+        - "active_users"
+        - "feature_adoption_rate"
+        - "nps_score"
+        - "open_critical_bugs"
+
+agent_behaviors:
+  cbo-001:
+    communication_style: "strategic_concise"
+    decision_making: "revenue_impact_focused"
+    escalation_threshold: "high_revenue_risk"
+    
+  cpo-001:
+    communication_style: "visionary_product_focused"
+    decision_making: "user_value_driven"
+    escalation_threshold: "critical_user_experience_issue"
+    
+  ae-001:
+    communication_style: "persuasive_client_centric"
+    automation_preference: "low" # Prefers human interaction for complex deals
+    negotiation_style: "win_win"
+    
+  ux-researcher-001:
+    communication_style: "empathetic_data_backed"
+    research_depth: "qualitative_and_quantitative"
+    report_format: "user_story_focused"
