@@ -4,7 +4,8 @@ import { LayoutDashboard, Users, CheckSquare, PlusCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-const NavItem = ({ to, icon: Icon, children }) => {
+const NavItem = ({ to, icon, children }) => {
+  const Icon = icon;
   const location = useLocation();
   const isActive = location.pathname === to;
 
