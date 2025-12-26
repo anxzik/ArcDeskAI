@@ -38,6 +38,16 @@ else
     GIT_AVAILABLE=true
 fi
 
+# Check Node.js
+if ! command -v npm &> /dev/null; then
+    echo "⚠️  npm not found. Frontend setup will be skipped."
+    NPM_AVAILABLE=false
+else
+    NODE_VERSION=$(node --version)
+    echo "✅ Node.js $NODE_VERSION found"
+    NPM_AVAILABLE=true
+fi
+
 echo ""
 echo "📁 Setting up project structure..."
 
@@ -189,6 +199,34 @@ if [ "$DOCKER_AVAILABLE" = true ]; then
 version: '3.8'
 
 services:
+  api:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://agentdesk:agentdesk_dev@postgres:5432/agentdesk
+      - REDIS_URL=redis://redis:6379/0
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_TARGET=http://api:8000
+    depends_on:
+      - api
+
   postgres:
     image: postgres:15-alpine
     environment:
@@ -196,7 +234,7 @@ services:
       POSTGRES_PASSWORD: agentdesk_dev
       POSTGRES_DB: agentdesk
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -241,6 +279,23 @@ if [ "$INSTALL_POETRY" = "y" ]; then
     if [ ! -f "pyproject.toml" ]; then
         poetry init --no-interaction --name agentdesk
         echo "✅ Poetry project initialized"
+    fi
+fi
+
+# Setup Frontend
+if [ "$NPM_AVAILABLE" = true ]; then
+    echo ""
+    read -p "Install frontend dependencies? (y/n): " INSTALL_FRONTEND
+    if [ "$INSTALL_FRONTEND" = "y" ]; then
+        if [ -d "frontend" ]; then
+            echo "Installing frontend dependencies..."
+            cd frontend
+            npm install
+            cd ..
+            echo "✅ Frontend dependencies installed"
+        else
+            echo "⚠️ Frontend directory not found."
+        fi
     fi
 fi
 
