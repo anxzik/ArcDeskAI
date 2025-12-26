@@ -4,38 +4,49 @@ import { CheckCircle, Clock, Plus, AlertCircle } from 'lucide-react';
 
 const TaskItem = ({ task }) => {
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'COMPLETED': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-      case 'IN_PROGRESS': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-      case 'PENDING': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+    switch (status?.toLowerCase()) {
+      case 'completed': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+      case 'in_progress': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+      case 'pending': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
       default: return 'text-slate-500 bg-slate-500/10 border-slate-500/20';
     }
   };
 
-  const getPriorityColor = (priority) => {
-      switch (priority) {
-          case 'CRITICAL': return 'text-red-400';
-          case 'HIGH': return 'text-orange-400';
-          case 'MEDIUM': return 'text-blue-400';
-          default: return 'text-slate-400';
+  const getPriorityInfo = (priority) => {
+      // Backend returns integer: 1=LOW, 2=MEDIUM, 3=HIGH, 4=CRITICAL
+      // Or string if created locally before refresh
+      const p = typeof priority === 'string' ? priority.toUpperCase() : priority;
+      
+      switch (p) {
+          case 4:
+          case 'CRITICAL': return { label: 'CRITICAL', color: 'text-red-400 border-red-400/20 bg-red-400/10' };
+          case 3:
+          case 'HIGH': return { label: 'HIGH', color: 'text-orange-400 border-orange-400/20 bg-orange-400/10' };
+          case 2:
+          case 'MEDIUM': return { label: 'MEDIUM', color: 'text-blue-400 border-blue-400/20 bg-blue-400/10' };
+          case 1:
+          case 'LOW': return { label: 'LOW', color: 'text-slate-400 border-slate-400/20 bg-slate-400/10' };
+          default: return { label: 'UNKNOWN', color: 'text-slate-400' };
       }
   }
+
+  const priorityInfo = getPriorityInfo(task.priority);
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-start gap-4">
       <div className={`mt-1 p-2 rounded-full ${getStatusColor(task.status)}`}>
-        {task.status === 'COMPLETED' ? <CheckCircle size={18} /> : <Clock size={18} />}
+        {task.status === 'completed' ? <CheckCircle size={18} /> : <Clock size={18} />}
       </div>
       <div className="flex-1">
         <div className="flex justify-between items-start">
             <h4 className="text-white font-medium">{task.title}</h4>
-            <span className={`text-xs font-mono px-2 py-0.5 rounded border border-slate-700 bg-slate-800 ${getPriorityColor(task.priority)}`}>
-                {task.priority}
+            <span className={`text-xs font-mono px-2 py-0.5 rounded border ${priorityInfo.color}`}>
+                {priorityInfo.label}
             </span>
         </div>
         <p className="text-slate-400 text-sm mt-1">{task.description}</p>
         <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
-          <span>ID: {task.task_id.substring(0, 8)}...</span>
+          <span>ID: {task.task_id}</span>
           <span>•</span>
           <span>Created by: {task.created_by}</span>
           {task.assigned_to && (
