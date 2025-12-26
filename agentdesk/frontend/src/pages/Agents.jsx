@@ -1,23 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createElement } from 'react';
 import { getAgents } from '../services/api';
 import { Shield, Code, Server, Bot } from 'lucide-react';
 
+const getIcon = (role) => {
+  const r = role.toLowerCase();
+  if (r.includes('cto') || r.includes('executive')) return Shield;
+  if (r.includes('engineer') || r.includes('dev')) return Code;
+  return Bot;
+};
+
 const AgentCard = ({ agent }) => {
-  const getIcon = (role) => {
-    const r = role.toLowerCase();
-    if (r.includes('cto') || r.includes('executive')) return Shield;
-    if (r.includes('engineer') || r.includes('dev')) return Code;
-    return Bot;
-  };
-
-  const Icon = getIcon(agent.role);
-
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-            <Icon className="w-5 h-5 text-blue-400" />
+            {createElement(getIcon(agent.role), { className: "w-5 h-5 text-blue-400" })}
           </div>
           <div>
             <h3 className="font-semibold text-white">{agent.title}</h3>

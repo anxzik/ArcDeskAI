@@ -3,7 +3,9 @@ import { getAgents, getTasks } from '../services/api';
 import { Users, CheckSquare, Activity, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const StatCard = ({ title, value, icon: Icon, color, to }) => (
+const StatCard = ({ title, value, icon, color, to }) => {
+  const Icon = icon;
+  return (
   <Link to={to} className="block group">
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 transition-all group-hover:border-slate-700 group-hover:shadow-lg">
       <div className="flex items-center justify-between mb-4">
@@ -17,6 +19,7 @@ const StatCard = ({ title, value, icon: Icon, color, to }) => (
     </div>
   </Link>
 );
+};
 
 const Dashboard = () => {
   const [stats, setStats] = useState({ agents: 0, tasks: 0 });
