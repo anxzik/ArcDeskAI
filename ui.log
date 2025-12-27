@@ -1,10 +1,17 @@
 
-Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+> frontend@0.0.0 dev
+> vite --host
 
+Port 5173 is in use, trying another one...
 
-  You can now view your Streamlit app in your browser.
+  VITE v7.3.0  ready in 2486 ms
 
-  Local URL: http://localhost:8501
-  Network URL: http://10.0.0.197:8501
-  External URL: http://64.181.250.189:8501
-
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: http://10.0.0.197:5174/
+  ➜  Network: http://172.18.0.1:5174/
+4:50:15 AM [vite] (client) page reload index.html
+4:50:16 AM [vite] vite.config.js changed, restarting server...
+4:50:16 AM [vite] server restarted.
+4:52:28 AM [vite] (client) page reload index.html
+4:55:54 AM [vite] (client) page reload index.html
+4:56:07 AM [vite] (client) page reload index.html

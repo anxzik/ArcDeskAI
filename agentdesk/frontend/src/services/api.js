@@ -1,30 +1,17 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const API_URL = 'http://localhost:8000';
 
 export const getAgents = async () => {
-  const response = await api.get('/agents');
-  return response.data;
+  const response = await fetch(`${API_URL}/agents`);
+  return response.json();
 };
 
-export const getTasks = async () => {
-  const response = await api.get('/tasks');
-  return response.data;
+export const createAgent = async (agent) => {
+  const response = await fetch(`${API_URL}/agents`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(agent),
+  });
+  return response.json();
 };
-
-export const getTask = async (taskId) => {
-  const response = await api.get(`/tasks/${taskId}`);
-  return response.data;
-};
-
-export const createTask = async (taskData) => {
-  const response = await api.post('/tasks', taskData);
-  return response.data;
-};
-
-export default api;

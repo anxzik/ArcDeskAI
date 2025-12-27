@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./agentdesk/backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./agentdesk/backend:/app
+    depends_on:
+      - db
+  frontend:
+    build: ./agentdesk/frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./agentdesk/frontend:/app
+    depends_on:
+      - backend
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=db
+
+volumes:
+  postgres_data:
