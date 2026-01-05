@@ -1,9 +1,93 @@
+# Python
 venv/
-.env
 __pycache__/
 *.pyc
-mlruns/
-agent_knowledge/
-*.db
-*.log
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Environment Variables & Secrets
+.env
+.env.*
+.env.local
 .env.dev
+.env.development
+.env.prod
+.env.production
+.env.test
+.env.staging
+*.env
+
+# API Keys & Credentials
+*secret*
+*credential*
+*_key
+*_keys
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+service-account*.json
+gcloud-credentials.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql.gz
+
+# Database Backups
+backups/
+*.backup
+*.bak
+
+# Logs
+*.log
+logs/
+mlruns/
+
+# Agent Data & Knowledge
+agent_knowledge/
+uploads/
+temp/
+tmp/
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# PostgreSQL
+*.pgpass
+.pgpass
+
+# Redis
+dump.rdb
+
+# Sensitive Documentation (if any)
+SECRETS.md
+CREDENTIALS.md
+TODO_PRIVATE.md
