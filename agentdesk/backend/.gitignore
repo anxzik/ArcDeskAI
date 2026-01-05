@@ -1,26 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environments
+# Environments
 .env
 .venv
 env/
@@ -28,96 +6,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.python-version
 
-# Environment Variables & Secrets
-.env
-.env.*
-.env.local
-.env.dev
-.env.development
-.env.prod
-.env.production
-.env.test
-.env.staging
-*.env
+# Project-specific
+__pycache__/
+*.pyc
 
-# API Keys & Credentials
-*secret*
-*credential*
-*_key
-*_keys
-*.pem
-*.key
-*.crt
-*.cer
-*.p12
-*.pfx
-service-account*.json
-
-# Database Files
+# DB
 *.db
-*.sqlite
 *.sqlite3
-*.dump
-*.sql
-*.sql.gz
-*.pgpass
-.pgpass
-migrations/versions/*.pyc
-
-# Database Backups
-backups/
-*.backup
-*.bak
-
-# Logs
-*.log
-logs/
-mlruns/
-
-# Testing
-.pytest_cache/
-.coverage
-.coverage.*
-htmlcov/
-.tox/
-.nox/
-.hypothesis/
-*.cover
-.cache
-nosetests.xml
-coverage.xml
-*.coveragerc
-
-# Type Checking
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/
-.pytype/
-
-# Linting
-.ruff_cache/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-*.sublime-project
-*.sublime-workspace
-
-# Uploads & Temp Files
-uploads/
-temp/
-tmp/
-agent_knowledge/
-
-# Redis
-dump.rdb
-
-# Alembic
-alembic.ini.bak
