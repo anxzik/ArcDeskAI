@@ -1,12 +1,12 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = '';
 
 export const getAgents = async () => {
-  const response = await fetch(`${API_URL}/agents`);
+  const response = await fetch(`/agents/`);
   return response.json();
 };
 
 export const createAgent = async (agent) => {
-  const response = await fetch(`${API_URL}/agents`, {
+  const response = await fetch(`/agents/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
