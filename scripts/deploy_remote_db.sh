@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Load environment variables
-if [ -f "agentdesk/.env.dev" ]; then
+if [ -f "/agentdesk/.env.dev" ]; then
     source agentdesk/.env.dev
 else read -p "Please provide the path to your .env.dev file: " ENV_PATH
     if [ -f "$ENV_PATH" ]; then
