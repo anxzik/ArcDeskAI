@@ -1,0 +1,3193 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+backend/
+  app/
+    core/
+      agent.py
+    database/
+      __init__.py
+      database.py
+      models.py
+    utils/
+      security.py
+    crud.py
+    main.py
+    mcp.py
+    schemas.py
+  migrations/
+    versions/
+      b7072bbd0120_initial_migration.py
+    env.py
+    README
+    script.py.mako
+  tests/
+    test_main.py
+  .gitignore
+  alembic.ini
+  Dockerfile
+  requirements.txt
+configs/
+  organizations/
+    bizdev_org_config.yaml
+    cybersec_org_config.yaml
+frontend/
+  public/
+    vite.svg
+  src/
+    assets/
+      react.svg
+    components/
+      Layout.jsx
+    pages/
+      Dashboard.jsx
+    services/
+      api.js
+    tests/
+      App.test.jsx
+    App.css
+    App.jsx
+    index.css
+    main.jsx
+    store.js
+  srcp/
+    ages/
+      Dashboard.jsx
+  .gitignore
+  Dockerfile
+  eslint.config.js
+  index.html
+  package.json
+  postcss.config.js
+  README.md
+  tailwind.config.js
+  vite.config.js
+.env.example
+.gitignore
+agentdesk
+Dockerfile
+README.md
+requirements.txt
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="backend/app/core/agent.py">
+"""
+AgentDesk Core - Basic Implementation
+A starting point for the hierarchical AI agent organization system
+"""
+⋮----
+class AgentRole(Enum)
+⋮----
+"""Standard business roles for agents"""
+EXECUTIVE = "executive"
+MANAGER = "manager"
+SENIOR_ENGINEER = "senior_engineer"
+ENGINEER = "engineer"
+JUNIOR_ENGINEER = "junior_engineer"
+QA_ENGINEER = "qa_engineer"
+SECURITY_ANALYST = "security_analyst"
+RESEARCHER = "researcher"
+⋮----
+class DeskStatus(Enum)
+⋮----
+"""Current status of an agent desk"""
+ACTIVE = "active"
+IDLE = "idle"
+BUSY = "busy"
+OFFLINE = "offline"
+⋮----
+class TaskStatus(Enum)
+⋮----
+"""Status of tasks in the system"""
+PENDING = "pending"
+IN_PROGRESS = "in_progress"
+REVIEW = "review"
+COMPLETED = "completed"
+FAILED = "failed"
+BLOCKED = "blocked"
+⋮----
+class Priority(Enum)
+⋮----
+"""Task priority levels"""
+LOW = 1
+MEDIUM = 2
+HIGH = 3
+CRITICAL = 4
+⋮----
+@dataclass
+class LLMConfig
+⋮----
+"""Configuration for LLM provider"""
+provider: str  # "anthropic", "openai", "local", etc.
+model: str
+temperature: float = 0.7
+max_tokens: int = 4000
+api_key: Optional[str] = None
+⋮----
+def to_dict(self) -> Dict[str, Any]
+⋮----
+class KnowledgeBase
+⋮----
+"""RAG Knowledge Base using ChromaDB"""
+def __init__(self, collection_name: str = "agent_knowledge", persist_path: str = "./agent_knowledge")
+⋮----
+def add_documents(self, documents: List[str], metadatas: List[Dict] = None, ids: List[str] = None)
+⋮----
+"""Add documents to knowledge base"""
+⋮----
+ids = [f"doc_{datetime.now().timestamp()}_{i}" for i in range(len(documents))]
+⋮----
+def query(self, query_text: str, n_results: int = 3) -> List[str]
+⋮----
+"""Query knowledge base"""
+⋮----
+results = self.collection.query(query_texts=[query_text], n_results=n_results)
+⋮----
+@dataclass
+class AgentMemory
+⋮----
+"""Agent's memory and context"""
+conversation_history: List[Dict[str, str]] = field(default_factory=list)
+learnings: List[str] = field(default_factory=list)
+context: Dict[str, Any] = field(default_factory=dict)
+⋮----
+def add_conversation(self, role: str, content: str)
+⋮----
+"""Add a conversation turn to history"""
+⋮----
+def add_learning(self, learning: str)
+⋮----
+"""Record a learning or insight"""
+⋮----
+def export_to_jsonl(self, file_path: str)
+⋮----
+"""Export conversation history to JSONL format for fine-tuning"""
+⋮----
+# Simple user/model pair assumption
+entry = {
+⋮----
+@dataclass
+class Artifact
+⋮----
+"""Output artifact from a task"""
+artifact_id: str
+artifact_type: str  # "code", "document", "analysis", etc.
+content: str
+metadata: Dict[str, Any] = field(default_factory=dict)
+created_at: datetime = field(default_factory=datetime.now)
+⋮----
+@dataclass
+class Task
+⋮----
+"""Represents a task in the system"""
+task_id: str
+title: str
+description: str
+created_by: str
+assigned_to: Optional[str] = None
+status: TaskStatus = TaskStatus.PENDING
+priority: Priority = Priority.MEDIUM
+dependencies: List[str] = field(default_factory=list)
+parent_task_id: Optional[str] = None
+subtasks: List[str] = field(default_factory=list)
+artifacts: List[Artifact] = field(default_factory=list)
+qa_required: bool = True
+qa_assigned_to: Optional[str] = None
+⋮----
+updated_at: datetime = field(default_factory=datetime.now)
+completed_at: Optional[datetime] = None
+⋮----
+class AgentDesk
+⋮----
+"""Represents an agent's workspace and configuration"""
+⋮----
+async def process_task(self, task: Task) -> Dict[str, Any]
+⋮----
+"""Process a task using the configured LLM"""
+⋮----
+# This is where you'd integrate with actual LLM APIs
+result = await self._execute_with_llm(task)
+⋮----
+def provide_feedback(self, task_id: str, rating: int, comment: str)
+⋮----
+"""Process feedback for a task to improve future performance"""
+⋮----
+# In enterprise version, this would fine-tune the model or update the vector DB
+⋮----
+# Store feedback in KB for retrieval
+⋮----
+async def _execute_with_llm(self, task: Task) -> Dict[str, Any]
+⋮----
+"""Execute task with configured LLM (placeholder for actual implementation)"""
+⋮----
+# RAG: Retrieve context
+context_str = ""
+⋮----
+docs = self.knowledge_base.query(task.description + " " + task.title)
+⋮----
+context_str = "\n\nRelevant Organizational Knowledge:\n" + "\n---\n".join(docs)
+⋮----
+# Construct prompt based on role and task
+system_prompt = f"""You are a {self.title} in an AI organization.
+⋮----
+# MLflow Tracking
+⋮----
+result = {}
+# Here you would call the actual LLM API based on provider
+⋮----
+result = await self._call_anthropic(system_prompt, task)
+⋮----
+result = await self._call_openai(system_prompt, task)
+⋮----
+result = await self._call_gemini(system_prompt, task)
+⋮----
+result = {"result": "LLM integration pending"}
+⋮----
+# Fallback if MLflow fails (e.g. connection error)
+⋮----
+# Still execute if we haven't yet
+⋮----
+async def _call_anthropic(self, system_prompt: str, task: Task) -> Dict[str, Any]
+⋮----
+"""Call Anthropic Claude API"""
+# Placeholder - integrate with actual Anthropic SDK
+# from anthropic import Anthropic
+# client = Anthropic(api_key=self.llm_config.api_key)
+# message = client.messages.create(...)
+⋮----
+async def _call_openai(self, system_prompt: str, task: Task) -> Dict[str, Any]
+⋮----
+"""Call OpenAI API"""
+# Placeholder - integrate with actual OpenAI SDK
+⋮----
+async def _call_gemini(self, system_prompt: str, task: Task) -> Dict[str, Any]
+⋮----
+"""Call Google Gemini API"""
+api_key = self.llm_config.api_key or os.getenv("GEMINI_API_KEY")
+⋮----
+# Combine system prompt and task details
+full_prompt = f"{system_prompt}\n\nTask: {task.title}\n{task.description}"
+⋮----
+# Run blocking call in thread
+model = genai.GenerativeModel(self.llm_config.model or "gemini-pro")
+response = await asyncio.to_thread(model.generate_content, full_prompt)
+⋮----
+def can_delegate_to(self, other_desk: 'AgentDesk') -> bool
+⋮----
+"""Check if this desk can delegate to another desk"""
+# Can delegate to direct reports or same level in team
+⋮----
+@dataclass
+class Team
+⋮----
+team_id: str
+name: str
+lead: str  # desk_id of the lead agent
+members: List[str]  # list of desk_ids
+focus: Optional[str] = None
+⋮----
+@dataclass
+class Committee
+⋮----
+committee_id: str
+⋮----
+chair: str  # desk_id of the chair agent
+⋮----
+purpose: Optional[str] = None
+meeting_frequency: Optional[str] = None
+⋮----
+@dataclass
+class QAPipelineStage
+⋮----
+type: str
+agent: Optional[str] = None
+assignee_level: Optional[str] = None
+required_reviewers: Optional[int] = None
+criteria: Optional[List[str]] = field(default_factory=list)
+timeout: Optional[int] = None
+block_on_critical: Optional[bool] = None
+required_for_types: Optional[List[str]] = field(default_factory=list)
+assessment_areas: Optional[List[str]] = field(default_factory=list)
+frameworks: Optional[List[str]] = field(default_factory=list)
+required_for_priority: Optional[List[str]] = field(default_factory=list)
+approval_criteria: Optional[List[str]] = field(default_factory=list)
+tools: Optional[List[str]] = field(default_factory=list)
+⋮----
+@dataclass
+class QAPipeline
+⋮----
+enabled: bool = True
+required_for: List[str] = field(default_factory=list)
+stages: List[QAPipelineStage] = field(default_factory=list)
+⋮----
+@dataclass
+class WorkflowStep
+⋮----
+assigned_role: Optional[str] = None
+assigned_agent: Optional[str] = None
+committee: Optional[str] = None
+team: Optional[str] = None
+outputs: List[str] = field(default_factory=list)
+inputs: List[str] = field(default_factory=list)
+condition: Optional[str] = None
+qa_required: bool = False
+max_duration: Optional[int] = None
+verification_required: bool = False
+⋮----
+focus_areas: Optional[List[str]] = field(default_factory=list)
+test_types: Optional[List[str]] = field(default_factory=list)
+required_for: Optional[List[str]] = field(default_factory=list)
+⋮----
+@dataclass
+class Workflow
+⋮----
+trigger: str
+steps: List[WorkflowStep] = field(default_factory=list)
+priority: Optional[str] = None
+⋮----
+@dataclass
+class TaskRoutingRule
+⋮----
+keywords: List[str] = field(default_factory=list)
+route_to: Optional[str] = None
+escalate_if_critical: Optional[str] = None
+notify_committee: Optional[str] = None
+escalate_to: Optional[str] = None
+⋮----
+@dataclass
+class NotificationChannel
+⋮----
+webhook_url: Optional[str] = None
+recipients: List[str] = field(default_factory=list)
+integration_key: Optional[str] = None
+notify_on: List[str] = field(default_factory=list)
+⋮----
+@dataclass
+class MetricsDashboard
+⋮----
+metrics: List[str] = field(default_factory=list)
+refresh_interval: Optional[int] = None
+⋮----
+@dataclass
+class MetricsConfig
+⋮----
+track: List[str] = field(default_factory=list)
+dashboards: List[MetricsDashboard] = field(default_factory=list)
+⋮----
+@dataclass
+class AgentBehavior
+⋮----
+communication_style: Optional[str] = None
+decision_making: Optional[str] = None
+escalation_threshold: Optional[str] = None
+automation_preference: Optional[str] = None
+negotiation_style: Optional[str] = None
+research_depth: Optional[str] = None
+ioc_extraction: Optional[str] = None
+report_format: Optional[str] = None
+documentation_level: Optional[str] = None
+⋮----
+class OrganizationStructure
+⋮----
+"""Manages the organizational hierarchy"""
+⋮----
+def __init__(self, org_name: str)
+⋮----
+def add_desk(self, desk: AgentDesk)
+⋮----
+"""Add an agent desk to the organization"""
+⋮----
+def get_desk(self, desk_id: str) -> Optional[AgentDesk]
+⋮----
+"""Get a desk by ID"""
+⋮----
+def get_subordinates(self, desk_id: str) -> List[AgentDesk]
+⋮----
+"""Get all desks that report to this desk"""
+⋮----
+def get_hierarchy_chain(self, desk_id: str) -> List[AgentDesk]
+⋮----
+"""Get the reporting chain from desk to top"""
+chain = []
+current_desk = self.get_desk(desk_id)
+⋮----
+current_desk = self.get_desk(current_desk.reports_to)
+⋮----
+async def delegate_task(self, task: Task, from_desk_id: str, to_desk_id: str) -> bool
+⋮----
+"""Delegate a task from one desk to another"""
+from_desk = self.get_desk(from_desk_id)
+to_desk = self.get_desk(to_desk_id)
+⋮----
+# Process the task asynchronously
+⋮----
+"""Create a new task"""
+task_id = f"task_{len(self.tasks) + 1:04d}"
+task = Task(
+⋮----
+def get_org_chart(self) -> Dict[str, Any]
+⋮----
+"""Generate organization chart data structure"""
+chart = {
+⋮----
+# Find root desks (no reports_to)
+roots = [desk for desk in self.desks.values() if not desk.reports_to]
+⋮----
+def build_tree(desk: AgentDesk) -> Dict[str, Any]
+⋮----
+subordinates = self.get_subordinates(desk.desk_id)
+⋮----
+# Example usage
+async def example_usage()
+⋮----
+"""Demonstrate basic usage"""
+⋮----
+# Create organization
+org = OrganizationStructure("AI Development Team")
+⋮----
+# Create CTO desk
+cto_desk = AgentDesk(
+⋮----
+# Create Senior Engineer desk
+senior_dev_desk = AgentDesk(
+⋮----
+# Create QA Engineer desk
+qa_desk = AgentDesk(
+⋮----
+# Create a task
+task = org.create_task(
+⋮----
+# CTO delegates to senior developer
+⋮----
+# Print org chart
+⋮----
+# Wait for task processing
+⋮----
+# Run the example
+</file>
+
+<file path="backend/app/database/__init__.py">
+
+</file>
+
+<file path="backend/app/database/database.py">
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/db")
+⋮----
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+⋮----
+Base = declarative_base()
+</file>
+
+<file path="backend/app/database/models.py">
+class Agent(Base)
+⋮----
+__tablename__ = "agents"
+⋮----
+id = Column(Integer, primary_key=True, index=True)
+name = Column(String, unique=True, index=True)
+description = Column(String)
+versions = relationship("AgentVersion", back_populates="agent")
+⋮----
+class AgentVersion(Base)
+⋮----
+__tablename__ = "agent_versions"
+⋮----
+agent_id = Column(Integer, ForeignKey("agents.id"))
+version_number = Column(String)
+release_notes = Column(Text)
+created_at = Column(DateTime, default=datetime.datetime.utcnow)
+agent = relationship("Agent", back_populates="versions")
+⋮----
+class KnowledgeBase(Base)
+⋮----
+__tablename__ = "knowledge_bases"
+⋮----
+datasources = relationship("DataSource", back_populates="knowledge_base")
+⋮----
+class DataSource(Base)
+⋮----
+__tablename__ = "data_sources"
+⋮----
+knowledge_base_id = Column(Integer, ForeignKey("knowledge_bases.id"))
+name = Column(String)
+type = Column(String) # e.g., 'github', 'web', 'file'
+uri = Column(String)
+knowledge_base = relationship("KnowledgeBase", back_populates="datasources")
+</file>
+
+<file path="backend/app/utils/security.py">
+class PIIMasker
+⋮----
+"""Enterprise-grade PII masking utility"""
+⋮----
+EMAIL_REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+PHONE_REGEX = r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b'
+⋮----
+@staticmethod
+    def mask(text: str) -> str
+⋮----
+text = re.sub(PIIMasker.EMAIL_REGEX, '[EMAIL_REDACTED]', text)
+text = re.sub(PIIMasker.PHONE_REGEX, '[PHONE_REDACTED]', text)
+</file>
+
+<file path="backend/app/crud.py">
+def get_agent(db: Session, agent_id: int)
+⋮----
+def get_agents(db: Session, skip: int = 0, limit: int = 100)
+⋮----
+def create_agent(db: Session, agent: schemas.AgentCreate)
+⋮----
+db_agent = models.Agent(name=agent.name, description=agent.description)
+⋮----
+def get_knowledge_base(db: Session, kb_id: int)
+⋮----
+def get_knowledge_bases(db: Session, skip: int = 0, limit: int = 100)
+⋮----
+def create_knowledge_base(db: Session, kb: schemas.KnowledgeBaseCreate)
+⋮----
+db_kb = models.KnowledgeBase(name=kb.name, description=kb.description)
+⋮----
+def get_data_source(db: Session, ds_id: int)
+⋮----
+def get_data_sources(db: Session, skip: int = 0, limit: int = 100)
+⋮----
+def create_data_source(db: Session, ds: schemas.DataSourceCreate, kb_id: int)
+⋮----
+db_ds = models.DataSource(**ds.dict(), knowledge_base_id=kb_id)
+</file>
+
+<file path="backend/app/main.py">
+app = FastAPI()
+⋮----
+# Dependency
+def get_db()
+⋮----
+db = SessionLocal()
+⋮----
+@app.post("/agents/", response_model=schemas.Agent)
+def create_agent(agent: schemas.AgentCreate, db: Session = Depends(get_db))
+⋮----
+@app.get("/agents/", response_model=List[schemas.Agent])
+def read_agents(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
+⋮----
+agents = crud.get_agents(db, skip=skip, limit=limit)
+⋮----
+@app.get("/agents/{agent_id}", response_model=schemas.Agent)
+def read_agent(agent_id: int, db: Session = Depends(get_db))
+⋮----
+db_agent = crud.get_agent(db, agent_id=agent_id)
+⋮----
+@app.post("/knowledge-bases/", response_model=schemas.KnowledgeBase)
+def create_knowledge_base(kb: schemas.KnowledgeBaseCreate, db: Session = Depends(get_db))
+⋮----
+@app.get("/knowledge-bases/", response_model=List[schemas.KnowledgeBase])
+def read_knowledge_bases(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
+⋮----
+kbs = crud.get_knowledge_bases(db, skip=skip, limit=limit)
+⋮----
+@app.get("/knowledge-bases/{kb_id}", response_model=schemas.KnowledgeBase)
+def read_knowledge_base(kb_id: int, db: Session = Depends(get_db))
+⋮----
+db_kb = crud.get_knowledge_base(db, kb_id=kb_id)
+⋮----
+@app.get("/datasources/", response_model=List[schemas.DataSource])
+def read_data_sources(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
+⋮----
+dss = crud.get_data_sources(db, skip=skip, limit=limit)
+⋮----
+@app.get("/mcp/search")
+async def search_mcp_endpoint(q: str)
+</file>
+
+<file path="backend/app/mcp.py">
+MCP_SOURCES = [
+⋮----
+async def search_mcp(query: str)
+⋮----
+results = []
+⋮----
+response = await client.get(f"{source}?q={query}")
+</file>
+
+<file path="backend/app/schemas.py">
+class DataSourceBase(BaseModel)
+⋮----
+name: str
+type: str
+uri: str
+⋮----
+class DataSourceCreate(DataSourceBase)
+⋮----
+class DataSource(DataSourceBase)
+⋮----
+id: int
+knowledge_base_id: int
+⋮----
+class Config
+⋮----
+orm_mode = True
+⋮----
+class KnowledgeBaseBase(BaseModel)
+⋮----
+description: Optional[str] = None
+⋮----
+class KnowledgeBaseCreate(KnowledgeBaseBase)
+⋮----
+class KnowledgeBase(KnowledgeBaseBase)
+⋮----
+datasources: List[DataSource] = []
+⋮----
+class AgentVersionBase(BaseModel)
+⋮----
+version_number: str
+release_notes: Optional[str] = None
+⋮----
+class AgentVersionCreate(AgentVersionBase)
+⋮----
+class AgentVersion(AgentVersionBase)
+⋮----
+agent_id: int
+created_at: datetime.datetime
+⋮----
+class AgentBase(BaseModel)
+⋮----
+class AgentCreate(AgentBase)
+⋮----
+class Agent(AgentBase)
+⋮----
+versions: List[AgentVersion] = []
+</file>
+
+<file path="backend/migrations/versions/b7072bbd0120_initial_migration.py">
+"""Initial migration
+
+Revision ID: b7072bbd0120
+Revises: 
+Create Date: 2025-12-27 04:58:11.352624
+
+"""
+⋮----
+# revision identifiers, used by Alembic.
+revision: str = 'b7072bbd0120'
+down_revision: Union[str, Sequence[str], None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+⋮----
+def upgrade() -> None
+⋮----
+"""Upgrade schema."""
+⋮----
+def downgrade() -> None
+⋮----
+"""Downgrade schema."""
+</file>
+
+<file path="backend/migrations/env.py">
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
+config = context.config
+⋮----
+# Overwrite sqlalchemy.url with environment variable if present
+db_url = os.getenv("DATABASE_URL")
+⋮----
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
+⋮----
+# add your model's MetaData object here
+# for 'autogenerate' support
+⋮----
+target_metadata = Base.metadata
+⋮----
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
+⋮----
+def run_migrations_offline() -> None
+⋮----
+"""Run migrations in 'offline' mode.
+
+    This configures the context with just a URL
+    and not an Engine, though an Engine is acceptable
+    here as well.  By skipping the Engine creation
+    we don't even need a DBAPI to be available.
+
+    Calls to context.execute() here emit the given string to the
+    script output.
+
+    """
+url = config.get_main_option("sqlalchemy.url")
+⋮----
+def run_migrations_online() -> None
+⋮----
+"""Run migrations in 'online' mode.
+
+    In this scenario we need to create an Engine
+    and associate a connection with the context.
+
+    """
+connectable = engine_from_config(
+</file>
+
+<file path="backend/migrations/README">
+Generic single-database configuration.
+</file>
+
+<file path="backend/migrations/script.py.mako">
+"""${message}
+
+Revision ID: ${up_revision}
+Revises: ${down_revision | comma,n}
+Create Date: ${create_date}
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+${imports if imports else ""}
+
+# revision identifiers, used by Alembic.
+revision: str = ${repr(up_revision)}
+down_revision: Union[str, Sequence[str], None] = ${repr(down_revision)}
+branch_labels: Union[str, Sequence[str], None] = ${repr(branch_labels)}
+depends_on: Union[str, Sequence[str], None] = ${repr(depends_on)}
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    ${upgrades if upgrades else "pass"}
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    ${downgrades if downgrades else "pass"}
+</file>
+
+<file path="backend/tests/test_main.py">
+client = TestClient(app)
+⋮----
+def test_read_root()
+⋮----
+response = client.get("/")
+⋮----
+def test_read_agents()
+⋮----
+response = client.get("/agents")
+</file>
+
+<file path="backend/.gitignore">
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project-specific
+__pycache__/
+*.pyc
+
+# DB
+*.db
+*.sqlite3
+</file>
+
+<file path="backend/alembic.ini">
+# A generic, single database configuration.
+
+[alembic]
+# path to migration scripts.
+# this is typically a path given in POSIX (e.g. forward slashes)
+# format, relative to the token %(here)s which refers to the location of this
+# ini file
+script_location = %(here)s/migrations
+
+# template used to generate migration file names; The default value is %%(rev)s_%%(slug)s
+# Uncomment the line below if you want the files to be prepended with date and time
+# see https://alembic.sqlalchemy.org/en/latest/tutorial.html#editing-the-ini-file
+# for all available tokens
+# file_template = %%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s
+
+# sys.path path, will be prepended to sys.path if present.
+# defaults to the current working directory.  for multiple paths, the path separator
+# is defined by "path_separator" below.
+prepend_sys_path = .
+
+
+# timezone to use when rendering the date within the migration file
+# as well as the filename.
+# If specified, requires the tzdata library which can be installed by adding
+# `alembic[tz]` to the pip requirements.
+# string value is passed to ZoneInfo()
+# leave blank for localtime
+# timezone =
+
+# max length of characters to apply to the "slug" field
+# truncate_slug_length = 40
+
+# set to 'true' to run the environment during
+# the 'revision' command, regardless of autogenerate
+# revision_environment = false
+
+# set to 'true' to allow .pyc and .pyo files without
+# a source .py file to be detected as revisions in the
+# versions/ directory
+# sourceless = false
+
+# version location specification; This defaults
+# to <script_location>/versions.  When using multiple version
+# directories, initial revisions must be specified with --version-path.
+# The path separator used here should be the separator specified by "path_separator"
+# below.
+# version_locations = %(here)s/bar:%(here)s/bat:%(here)s/alembic/versions
+
+# path_separator; This indicates what character is used to split lists of file
+# paths, including version_locations and prepend_sys_path within configparser
+# files such as alembic.ini.
+# The default rendered in new alembic.ini files is "os", which uses os.pathsep
+# to provide os-dependent path splitting.
+#
+# Note that in order to support legacy alembic.ini files, this default does NOT
+# take place if path_separator is not present in alembic.ini.  If this
+# option is omitted entirely, fallback logic is as follows:
+#
+# 1. Parsing of the version_locations option falls back to using the legacy
+#    "version_path_separator" key, which if absent then falls back to the legacy
+#    behavior of splitting on spaces and/or commas.
+# 2. Parsing of the prepend_sys_path option falls back to the legacy
+#    behavior of splitting on spaces, commas, or colons.
+#
+# Valid values for path_separator are:
+#
+# path_separator = :
+# path_separator = ;
+# path_separator = space
+# path_separator = newline
+#
+# Use os.pathsep. Default configuration used for new projects.
+path_separator = os
+
+# set to 'true' to search source files recursively
+# in each "version_locations" directory
+# new in Alembic version 1.10
+# recursive_version_locations = false
+
+# the output encoding used when revision files
+# are written from script.py.mako
+# output_encoding = utf-8
+
+# database URL.  This is consumed by the user-maintained env.py script only.
+# other means of configuring database URLs may be customized within the env.py
+# file.
+sqlalchemy.url = postgresql://user:password@postgresserver/db
+
+
+[post_write_hooks]
+# post_write_hooks defines scripts or Python functions that are run
+# on newly generated revision scripts.  See the documentation for further
+# detail and examples
+
+# format using "black" - use the console_scripts runner, against the "black" entrypoint
+# hooks = black
+# black.type = console_scripts
+# black.entrypoint = black
+# black.options = -l 79 REVISION_SCRIPT_FILENAME
+
+# lint with attempts to fix using "ruff" - use the module runner, against the "ruff" module
+# hooks = ruff
+# ruff.type = module
+# ruff.module = ruff
+# ruff.options = check --fix REVISION_SCRIPT_FILENAME
+
+# Alternatively, use the exec runner to execute a binary found on your PATH
+# hooks = ruff
+# ruff.type = exec
+# ruff.executable = ruff
+# ruff.options = check --fix REVISION_SCRIPT_FILENAME
+
+# Logging configuration.  This is also consumed by the user-maintained
+# env.py script only.
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARNING
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARNING
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S
+</file>
+
+<file path="backend/Dockerfile">
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+</file>
+
+<file path="backend/requirements.txt">
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+psycopg2-binary
+httpx
+pytest
+</file>
+
+<file path="configs/organizations/bizdev_org_config.yaml">
+# AgentDesk Organization Configuration for Business Development and Product Management
+
+organization:
+  name: "BizDev & Product Management Org"
+  description: "Automated business development, sales, and product lifecycle management"
+
+desks:
+  # Executive Level
+  - id: "cbo-001"
+    title: "Chief Business Officer"
+    role: "executive"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.7
+      max_tokens: 4000
+    capabilities:
+      - strategic_planning
+      - market_analysis
+      - partnership_development
+      - business_strategy
+      - executive_oversight
+    hierarchy_level: 1
+    
+  - id: "cpo-001"
+    title: "Chief Product Officer"
+    role: "executive"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.6
+      max_tokens: 4000
+    capabilities:
+      - product_vision
+      - roadmap_strategy
+      - market_research_oversight
+      - user_experience_strategy
+      - product_lifecycle_management
+    hierarchy_level: 1
+    
+  # Management Level
+  - id: "lead-gen-manager-001"
+    title: "Lead Generation Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "cbo-001"
+    team_id: "lead-generation"
+    capabilities:
+      - campaign_management
+      - lead_qualification_strategy
+      - data_analysis
+      - team_coordination
+      - outreach_strategy
+    hierarchy_level: 2
+    
+  - id: "sales-manager-001"
+    title: "Sales Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "cbo-001"
+    team_id: "sales"
+    capabilities:
+      - sales_strategy
+      - deal_closing
+      - pipeline_management
+      - team_coordination
+      - negotiation
+    hierarchy_level: 2
+    
+  - id: "product-manager-001"
+    title: "Product Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "cpo-001"
+    team_id: "product-management"
+    capabilities:
+      - product_roadmap_planning
+      - requirements_gathering
+      - stakeholder_communication
+      - agile_sprint_management
+      - market_analysis
+    hierarchy_level: 2
+
+  # Senior Level
+  - id: "market-research-001"
+    title: "Market Research Specialist"
+    role: "researcher"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "product-manager-001"
+    team_id: "product-management"
+    capabilities:
+      - market_segmentation
+      - competitive_analysis
+      - trend_identification
+      - data_synthesis
+      - report_generation
+    tools:
+      - web_scraper
+      - data_analyzer
+    hierarchy_level: 3
+    
+  - id: "sdr-001"
+    title: "Sales Development Representative"
+    role: "engineer" # Using engineer role for agent that executes tasks
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "lead-gen-manager-001"
+    team_id: "lead-generation"
+    capabilities:
+      - lead_qualification
+      - initial_outreach
+      - meeting_scheduling
+      - CRM_management
+      - communication_automation
+    tools:
+      - email_sender
+      - linkedin_scraper
+      - crm_api
+    hierarchy_level: 3
+    
+  - id: "ae-001"
+    title: "Account Executive"
+    role: "senior_engineer" # Using senior_engineer for agent that closes deals
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "sales-manager-001"
+    team_id: "sales"
+    capabilities:
+      - sales_pitch_delivery
+      - proposal_generation
+      - contract_negotiation
+      - relationship_building
+      - deal_closing
+    tools:
+      - document_generator
+      - crm_api
+      - contract_management_tool
+    hierarchy_level: 3
+    
+  - id: "ux-researcher-001"
+    title: "UX Researcher"
+    role: "researcher"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "product-manager-001"
+    team_id: "user-experience"
+    capabilities:
+      - user_interview_design
+      - usability_testing
+      - feedback_analysis
+      - user_story_creation
+      - persona_development
+    tools:
+      - survey_tool
+      - analytics_api
+    hierarchy_level: 3
+    
+  - id: "product-owner-001"
+    title: "Product Owner"
+    role: "manager" # Acts as a manager for backlog
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "product-manager-001"
+    team_id: "product-management"
+    capabilities:
+      - backlog_management
+      - user_story_refinement
+      - sprint_planning_support
+      - acceptance_criteria_definition
+    hierarchy_level: 3
+
+  # Mid Level
+  - id: "bdr-001"
+    title: "Business Development Representative"
+    role: "engineer"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "sdr-001"
+    team_id: "lead-generation"
+    capabilities:
+      - cold_outreach
+      - prospect_research
+      - initial_qualification
+      - data_entry
+    tools:
+      - email_sender
+      - web_scraper
+      - crm_api
+    hierarchy_level: 4
+    
+  - id: "csm-001"
+    title: "Customer Success Manager"
+    role: "engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "sales-manager-001"
+    team_id: "sales"
+    capabilities:
+      - customer_onboarding
+      - relationship_management
+      - issue_resolution
+      - feedback_collection
+      - upsell_identification
+    tools:
+      - helpdesk_api
+      - crm_api
+      - survey_tool
+    hierarchy_level: 4
+
+teams:
+  - id: "lead-generation"
+    name: "Lead Generation Team"
+    lead: "lead-gen-manager-001"
+    members:
+      - "lead-gen-manager-001"
+      - "sdr-001"
+      - "bdr-001"
+    focus: "Identifying, qualifying, and nurturing new business leads"
+    
+  - id: "sales"
+    name: "Sales Team"
+    lead: "sales-manager-001"
+    members:
+      - "sales-manager-001"
+      - "ae-001"
+      - "csm-001"
+    focus: "Managing the sales pipeline, closing deals, and ensuring customer success"
+    
+  - id: "product-management"
+    name: "Product Management Team"
+    lead: "product-manager-001"
+    members:
+      - "product-manager-001"
+      - "market-research-001"
+      - "product-owner-001"
+    focus: "Defining product vision, strategy, and roadmap"
+    
+  - id: "user-experience"
+    name: "User Experience Team"
+    lead: "ux-researcher-001" # UX Researcher can lead this focused team
+    members:
+      - "ux-researcher-001"
+    focus: "Understanding user needs and ensuring optimal product usability"
+
+committees:
+  - id: "product-strategy-committee"
+    name: "Product Strategy Review Board"
+    chair: "cpo-001"
+    members:
+      - "cpo-001"
+      - "product-manager-001"
+      - "market-research-001"
+      - "cbo-001"
+    purpose: "Review and approve major product strategies, roadmaps, and market entry plans"
+    meeting_frequency: "monthly"
+    
+  - id: "go-to-market-committee"
+    name: "Go-to-Market Planning Committee"
+    chair: "cbo-001"
+    members:
+      - "cbo-001"
+      - "lead-gen-manager-001"
+      - "sales-manager-001"
+      - "product-manager-001"
+    purpose: "Coordinate launch strategies, sales enablement, and marketing efforts for new products/features"
+    meeting_frequency: "bi-weekly"
+    
+  - id: "customer-feedback-loop"
+    name: "Customer Feedback Loop Committee"
+    chair: "product-manager-001"
+    members:
+      - "product-manager-001"
+      - "ux-researcher-001"
+      - "csm-001"
+      - "ae-001"
+    purpose: "Collect, analyze, and prioritize customer feedback to inform product development"
+    meeting_frequency: "weekly"
+
+qa_pipeline:
+  enabled: true
+  required_for:
+    - "lead_profile"
+    - "sales_pitch"
+    - "proposal"
+    - "contract"
+    - "user_story"
+    - "product_requirement_document"
+    
+  stages:
+    - type: "lead_quality_check"
+      agent: "lead-gen-manager-001"
+      criteria:
+        - "data_accuracy"
+        - "qualification_score"
+        - "fit_to_ideal_customer_profile"
+      timeout: 180
+      block_on_low_quality: true
+      
+    - type: "sales_pitch_review"
+      agent: "sales-manager-001"
+      required_for_types:
+        - "new_product_pitch"
+        - "high_value_client_pitch"
+      criteria:
+        - "clarity"
+        - "persuasiveness"
+        - "objection_handling_strategy"
+        
+    - type: "prd_review"
+      agent: "product-manager-001"
+      required_for_priority: ["high", "critical"]
+      criteria:
+        - "completeness"
+        - "clarity"
+        - "feasibility"
+        - "market_alignment"
+        
+    - type: "user_story_acceptance"
+      agent: "product-owner-001"
+      required_for_types:
+        - "new_feature_story"
+        - "bug_fix_story"
+      criteria:
+        - "meets_definition_of_done"
+        - "testable"
+        - "adds_value"
+        
+    - type: "contract_review"
+      agent: "cbo-001"
+      required_for_priority: ["critical"]
+      criteria:
+        - "legal_compliance"
+        - "business_terms_alignment"
+        - "risk_assessment"
+
+workflows:
+  lead_qualification_nurturing:
+    name: "Lead Qualification & Nurturing Workflow"
+    trigger: "new_lead_identified"
+    steps:
+      - name: "Initial Prospect Research"
+        assigned_role: "engineer" # BDR
+        outputs:
+          - "basic_company_info"
+          - "contact_details"
+          
+      - name: "Automated Initial Outreach"
+        assigned_role: "engineer" # SDR
+        inputs: ["basic_company_info", "contact_details"]
+        outputs:
+          - "outreach_email_sent"
+          - "engagement_score"
+          
+      - name: "Lead Qualification Call"
+        assigned_role: "engineer" # SDR
+        inputs: ["engagement_score"]
+        outputs:
+          - "qualified_lead_status"
+          - "meeting_scheduled"
+          
+      - name: "Nurturing Sequence"
+        assigned_role: "engineer" # SDR
+        condition: "qualified_lead_status == 'not_ready'"
+        outputs:
+          - "content_delivered"
+          - "follow_up_scheduled"
+          
+      - name: "Handover to Sales"
+        assigned_role: "manager" # Lead Gen Manager
+        condition: "qualified_lead_status == 'ready_for_sales'"
+        outputs:
+          - "sales_handover_report"
+          
+  sales_cycle_management:
+    name: "Sales Cycle Management Workflow"
+    trigger: "lead_handed_over_to_sales"
+    steps:
+      - name: "Discovery Call"
+        assigned_role: "senior_engineer" # AE
+        inputs: ["sales_handover_report"]
+        outputs:
+          - "customer_needs_identified"
+          - "solution_fit_assessment"
+          
+      - name: "Proposal Generation"
+        assigned_role: "senior_engineer" # AE
+        inputs: ["customer_needs_identified", "solution_fit_assessment"]
+        qa_required: true # Sales Pitch Review
+        outputs:
+          - "custom_proposal_document"
+          
+      - name: "Negotiation & Objection Handling"
+        assigned_role: "senior_engineer" # AE
+        outputs:
+          - "negotiation_summary"
+          - "deal_terms_agreed"
+          
+      - name: "Contract Management"
+        assigned_role: "senior_engineer" # AE
+        inputs: ["deal_terms_agreed"]
+        qa_required: true # Contract Review
+        outputs:
+          - "signed_contract"
+          
+      - name: "Deal Closure & Onboarding Handoff"
+        assigned_role: "manager" # Sales Manager
+        outputs:
+          - "closed_deal_notification"
+          - "onboarding_brief"
+          
+  new_feature_development_from_feedback:
+    name: "New Feature Development from User Feedback Workflow"
+    trigger: "critical_user_feedback_identified"
+    steps:
+      - name: "Feedback Analysis & Prioritization"
+        assigned_role: "researcher" # UX Researcher
+        committee: "customer-feedback-loop"
+        outputs:
+          - "prioritized_user_story"
+          - "impact_assessment"
+          
+      - name: "Product Requirement Document Creation"
+        assigned_role: "manager" # Product Manager
+        inputs: ["prioritized_user_story", "impact_assessment"]
+        qa_required: true # PRD Review
+        outputs:
+          - "final_prd"
+          
+      - name: "User Story Refinement"
+        assigned_role: "manager" # Product Owner
+        inputs: ["final_prd"]
+        outputs:
+          - "refined_user_stories"
+          - "acceptance_criteria"
+          
+      - name: "Development Handoff"
+        assigned_role: "manager" # Product Manager
+        outputs:
+          - "development_ready_stories"
+          
+      - name: "User Story Acceptance Testing"
+        assigned_role: "manager" # Product Owner
+        qa_required: true # User Story Acceptance
+        outputs:
+          - "accepted_user_stories"
+
+  customer_onboarding_feedback:
+    name: "Customer Onboarding & Feedback Workflow"
+    trigger: "new_deal_closed"
+    steps:
+      - name: "Onboarding Kickoff"
+        assigned_role: "engineer" # CSM
+        inputs: ["onboarding_brief"]
+        outputs:
+          - "onboarding_plan"
+          - "customer_welcome_kit"
+          
+      - name: "Initial Setup & Training"
+        assigned_role: "engineer" # CSM
+        outputs:
+          - "customer_onboarded_status"
+          - "training_completed"
+          
+      - name: "Regular Check-ins & Support"
+        assigned_role: "engineer" # CSM
+        outputs:
+          - "customer_health_score"
+          - "support_tickets_resolved"
+          
+      - name: "Feedback Collection"
+        assigned_role: "engineer" # CSM
+        outputs:
+          - "customer_satisfaction_survey_results"
+          - "feature_requests_collected"
+          
+      - name: "Feedback Loop to Product"
+        assigned_role: "manager" # Product Manager
+        inputs: ["feature_requests_collected"]
+        outputs:
+          - "feedback_integrated_into_backlog"
+
+task_routing:
+  rules:
+    - keywords: ["new lead", "prospect", "outreach"]
+      route_to: "sdr-001"
+      escalate_if_critical: "lead-gen-manager-001"
+      
+    - keywords: ["RFP", "proposal", "negotiation", "contract"]
+      route_to: "ae-001"
+      escalate_if_critical: "sales-manager-001"
+      
+    - keywords: ["feature request", "user story", "roadmap", "product backlog"]
+      route_to: "product-owner-001"
+      notify_committee: "product-strategy-committee"
+      
+    - keywords: ["user feedback", "usability", "UX research"]
+      route_to: "ux-researcher-001"
+      notify_committee: "customer-feedback-loop"
+      
+    - keywords: ["customer onboarding", "customer success", "support issue"]
+      route_to: "csm-001"
+      
+    - keywords: ["market trend", "competitor analysis", "market segment"]
+      route_to: "market-research-001"
+
+notifications:
+  channels:
+    - type: "slack"
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      notify_on:
+        - "new_qualified_lead"
+        - "deal_closed"
+        - "critical_product_feedback"
+        - "contract_signed"
+        
+    - type: "email"
+      recipients: ["bizdev-team@company.com", "product-team@company.com"]
+      notify_on:
+        - "lead_gen_qa_failure"
+        - "sales_pitch_review_needed"
+        - "prd_review_needed"
+        - "user_story_acceptance_needed"
+        
+    - type: "pagerduty"
+      integration_key: "${PAGERDUTY_KEY}"
+      notify_on:
+        - "critical_deal_at_risk"
+        - "major_product_issue_from_feedback"
+
+metrics:
+  track:
+    - "leads_generated_rate"
+    - "lead_conversion_rate"
+    - "sales_pipeline_value"
+    - "average_deal_size"
+    - "customer_acquisition_cost"
+    - "feature_adoption_rate"
+    - "customer_satisfaction_score"
+    - "user_story_cycle_time"
+    - "rfp_win_rate"
+    
+  dashboards:
+    - name: "Business Development Overview"
+      refresh_interval: 300 # seconds
+      metrics:
+        - "total_leads"
+        - "qualified_leads"
+        - "sales_pipeline_value"
+        - "closed_deals_this_month"
+        
+    - name: "Product Health Dashboard"
+      metrics:
+        - "active_users"
+        - "feature_adoption_rate"
+        - "nps_score"
+        - "open_critical_bugs"
+
+agent_behaviors:
+  cbo-001:
+    communication_style: "strategic_concise"
+    decision_making: "revenue_impact_focused"
+    escalation_threshold: "high_revenue_risk"
+    
+  cpo-001:
+    communication_style: "visionary_product_focused"
+    decision_making: "user_value_driven"
+    escalation_threshold: "critical_user_experience_issue"
+    
+  ae-001:
+    communication_style: "persuasive_client_centric"
+    automation_preference: "low" # Prefers human interaction for complex deals
+    negotiation_style: "win_win"
+    
+  ux-researcher-001:
+    communication_style: "empathetic_data_backed"
+    research_depth: "qualitative_and_quantitative"
+    report_format: "user_story_focused"
+</file>
+
+<file path="configs/organizations/cybersec_org_config.yaml">
+# Sample AgentDesk Organization Configuration
+# This creates a small software development team
+
+organization:
+  name: "Cybersecurity Research Lab"
+  description: "Focused on security research, threat analysis, and secure coding"
+
+desks:
+  # Executive Level
+  - id: "ciso-001"
+    title: "Chief Information Security Officer"
+    role: "executive"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.7
+      max_tokens: 4000
+    capabilities:
+      - strategic_planning
+      - risk_management
+      - compliance_oversight
+      - incident_response_coordination
+      - security_architecture
+    hierarchy_level: 1
+    
+  # Management Level
+  - id: "sec-manager-001"
+    title: "Security Engineering Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "ciso-001"
+    team_id: "security-engineering"
+    capabilities:
+      - team_coordination
+      - project_management
+      - security_review
+      - mentoring
+      - resource_allocation
+    hierarchy_level: 2
+    
+  - id: "threat-manager-001"
+    title: "Threat Intelligence Manager"
+    role: "manager"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "ciso-001"
+    team_id: "threat-intelligence"
+    capabilities:
+      - threat_analysis
+      - intelligence_gathering
+      - strategic_assessment
+      - team_coordination
+    hierarchy_level: 2
+    
+  # Senior Level - Security Engineering
+  - id: "senior-sec-001"
+    title: "Senior Security Engineer"
+    role: "senior_engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "sec-manager-001"
+    team_id: "security-engineering"
+    capabilities:
+      - security_code_review
+      - vulnerability_assessment
+      - penetration_testing
+      - secure_architecture_design
+      - threat_modeling
+      - security_automation
+    tools:
+      - bash
+      - python_repl
+      - nmap
+      - metasploit
+      - burp_suite
+    hierarchy_level: 3
+    
+  - id: "appsec-001"
+    title: "Application Security Specialist"
+    role: "senior_engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.2
+      max_tokens: 4000
+    reports_to: "sec-manager-001"
+    team_id: "security-engineering"
+    capabilities:
+      - static_analysis
+      - dynamic_analysis
+      - dependency_scanning
+      - secure_coding_review
+      - owasp_expertise
+    tools:
+      - sonarqube
+      - snyk
+      - bandit
+      - semgrep
+    hierarchy_level: 3
+    
+  # Senior Level - Threat Intelligence
+  - id: "threat-analyst-001"
+    title: "Senior Threat Analyst"
+    role: "researcher"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.4
+      max_tokens: 4000
+    reports_to: "threat-manager-001"
+    team_id: "threat-intelligence"
+    capabilities:
+      - threat_hunting
+      - malware_analysis
+      - ioc_extraction
+      - attack_pattern_analysis
+      - threat_reporting
+    tools:
+      - misp
+      - virustotal_api
+      - yara
+      - ida_pro
+    hierarchy_level: 3
+    
+  # Mid Level
+  - id: "sec-engineer-001"
+    title: "Security Engineer"
+    role: "engineer"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.3
+      max_tokens: 4000
+    reports_to: "senior-sec-001"
+    team_id: "security-engineering"
+    capabilities:
+      - vulnerability_scanning
+      - security_testing
+      - log_analysis
+      - incident_investigation
+      - documentation
+    tools:
+      - nessus
+      - wireshark
+      - splunk
+      - elastic_siem
+    hierarchy_level: 4
+    
+  - id: "threat-researcher-001"
+    title: "Threat Researcher"
+    role: "researcher"
+    llm:
+      provider: "openai"
+      model: "gpt-4"
+      temperature: 0.5
+      max_tokens: 4000
+    reports_to: "threat-analyst-001"
+    team_id: "threat-intelligence"
+    capabilities:
+      - osint_gathering
+      - threat_research
+      - indicator_analysis
+      - report_writing
+    tools:
+      - maltego
+      - shodan
+      - censys
+      - urlscan
+    hierarchy_level: 4
+    
+  # QA/Compliance
+  - id: "compliance-001"
+    title: "Security Compliance Analyst"
+    role: "qa_engineer"
+    llm:
+      provider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+      temperature: 0.2
+      max_tokens: 4000
+    reports_to: "ciso-001"
+    team_id: "compliance"
+    capabilities:
+      - compliance_review
+      - policy_verification
+      - audit_preparation
+      - framework_mapping
+      - risk_assessment
+    tools:
+      - compliance_scanner
+      - policy_checker
+    hierarchy_level: 2
+
+teams:
+  - id: "security-engineering"
+    name: "Security Engineering Team"
+    lead: "sec-manager-001"
+    members:
+      - "sec-manager-001"
+      - "senior-sec-001"
+      - "appsec-001"
+      - "sec-engineer-001"
+    focus: "Proactive security measures and secure development"
+    
+  - id: "threat-intelligence"
+    name: "Threat Intelligence Team"
+    lead: "threat-manager-001"
+    members:
+      - "threat-manager-001"
+      - "threat-analyst-001"
+      - "threat-researcher-001"
+    focus: "Threat landscape monitoring and intelligence gathering"
+    
+  - id: "compliance"
+    name: "Compliance & Risk"
+    lead: "compliance-001"
+    members:
+      - "compliance-001"
+    focus: "Regulatory compliance and risk management"
+
+committees:
+  - id: "security-review-board"
+    name: "Security Review Board"
+    chair: "ciso-001"
+    members:
+      - "ciso-001"
+      - "sec-manager-001"
+      - "threat-manager-001"
+      - "senior-sec-001"
+      - "compliance-001"
+    purpose: "Review and approve security architectures, major incidents, and strategic initiatives"
+    meeting_frequency: "weekly"
+    
+  - id: "vulnerability-assessment"
+    name: "Vulnerability Assessment Committee"
+    chair: "senior-sec-001"
+    members:
+      - "senior-sec-001"
+      - "appsec-001"
+      - "sec-engineer-001"
+    purpose: "Prioritize and coordinate vulnerability remediation efforts"
+    meeting_frequency: "daily"
+    
+  - id: "threat-intelligence-sharing"
+    name: "Threat Intelligence Sharing Group"
+    chair: "threat-manager-001"
+    members:
+      - "threat-manager-001"
+      - "threat-analyst-001"
+      - "threat-researcher-001"
+      - "senior-sec-001"
+    purpose: "Share threat intelligence and coordinate defensive measures"
+    meeting_frequency: "daily"
+
+qa_pipeline:
+  enabled: true
+  required_for:
+    - "security_code"
+    - "security_policy"
+    - "vulnerability_report"
+    - "threat_intelligence"
+    - "architecture_document"
+    
+  stages:
+    - type: "automated_security_scan"
+      agent: "appsec-001"
+      tools:
+        - static_analysis
+        - dependency_check
+        - secrets_scanner
+      timeout: 600
+      block_on_critical: true
+      
+    - type: "peer_review"
+      assignee_level: "same_or_higher"
+      required_reviewers: 1
+      criteria:
+        - "security_best_practices"
+        - "code_quality"
+        - "documentation"
+        
+    - type: "threat_assessment"
+      agent: "threat-analyst-001"
+      required_for_types:
+        - "new_feature"
+        - "architecture_change"
+        - "external_integration"
+      assessment_areas:
+        - "attack_surface"
+        - "threat_vectors"
+        - "risk_level"
+        
+    - type: "compliance_check"
+      agent: "compliance-001"
+      required_for_priority: ["high", "critical"]
+      frameworks:
+        - "NIST_CSF"
+        - "ISO_27001"
+        - "SOC2"
+        
+    - type: "manager_approval"
+      agent: "sec-manager-001"
+      required_for_priority: ["high", "critical"]
+      approval_criteria:
+        - "business_impact"
+        - "risk_acceptance"
+        - "resource_allocation"
+        
+    - type: "ciso_approval"
+      agent: "ciso-001"
+      required_for_priority: ["critical"]
+      required_for_types:
+        - "major_architecture_change"
+        - "security_incident_response"
+
+workflows:
+  vulnerability_remediation:
+    name: "Vulnerability Remediation Workflow"
+    trigger: "vulnerability_discovered"
+    steps:
+      - name: "Initial Triage"
+        assigned_role: "engineer"
+        outputs:
+          - "severity_assessment"
+          - "affected_systems"
+          
+      - name: "Detailed Analysis"
+        assigned_role: "senior_engineer"
+        inputs: ["severity_assessment"]
+        outputs:
+          - "exploitation_difficulty"
+          - "remediation_plan"
+          
+      - name: "Threat Intelligence Correlation"
+        assigned_role: "researcher"
+        committee: "threat-intelligence-sharing"
+        outputs:
+          - "active_exploitation"
+          - "threat_actor_attribution"
+          
+      - name: "Remediation Implementation"
+        assigned_role: "senior_engineer"
+        qa_required: true
+        
+      - name: "Verification Testing"
+        assigned_role: "qa_engineer"
+        
+      - name: "Documentation & Closure"
+        assigned_role: "engineer"
+        outputs:
+          - "remediation_report"
+          - "lessons_learned"
+  
+  security_code_review:
+    name: "Security Code Review"
+    trigger: "code_commit"
+    steps:
+      - name: "Automated Security Scanning"
+        assigned_role: "qa_engineer"
+        tools: ["static_analysis", "secrets_scan"]
+        
+      - name: "Manual Code Review"
+        assigned_role: "senior_engineer"
+        focus_areas:
+          - "authentication"
+          - "authorization"
+          - "input_validation"
+          - "crypto_usage"
+          
+      - name: "Threat Modeling"
+        assigned_role: "senior_engineer"
+        required_for: ["new_feature", "architecture_change"]
+        
+      - name: "Security Testing"
+        assigned_role: "engineer"
+        test_types:
+          - "fuzzing"
+          - "boundary_testing"
+          - "auth_bypass_attempts"
+          
+      - name: "Approval"
+        assigned_role: "manager"
+  
+  incident_response:
+    name: "Security Incident Response"
+    trigger: "security_incident_detected"
+    priority: "critical"
+    steps:
+      - name: "Incident Detection & Reporting"
+        assigned_role: "engineer"
+        max_duration: 15  # minutes
+        
+      - name: "Initial Assessment"
+        assigned_role: "senior_engineer"
+        committee: "security-review-board"
+        outputs:
+          - "incident_severity"
+          - "containment_strategy"
+        
+      - name: "Containment"
+        assigned_role: "senior_engineer"
+        
+      - name: "Threat Analysis"
+        assigned_role: "researcher"
+        team: "threat-intelligence"
+        
+      - name: "Eradication"
+        assigned_role: "senior_engineer"
+        
+      - name: "Recovery"
+        assigned_role: "engineer"
+        verification_required: true
+        
+      - name: "Post-Incident Review"
+        assigned_role: "manager"
+        committee: "security-review-board"
+        outputs:
+          - "incident_report"
+          - "lessons_learned"
+          - "improvement_recommendations"
+
+task_routing:
+  # Automatically route tasks based on keywords and priority
+  rules:
+    - keywords: ["vulnerability", "CVE", "exploit"]
+      route_to: "senior-sec-001"
+      escalate_if_critical: "sec-manager-001"
+      
+    - keywords: ["malware", "threat actor", "campaign"]
+      route_to: "threat-analyst-001"
+      
+    - keywords: ["compliance", "audit", "policy"]
+      route_to: "compliance-001"
+      
+    - keywords: ["code review", "secure coding"]
+      route_to: "appsec-001"
+      
+    - keywords: ["incident", "breach", "compromise"]
+      route_to: "senior-sec-001"
+      notify_committee: "security-review-board"
+      escalate_to: "ciso-001"
+
+notifications:
+  channels:
+    - type: "slack"
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      notify_on:
+        - "critical_vulnerability"
+        - "security_incident"
+        - "compliance_violation"
+        
+    - type: "email"
+      recipients: ["security-team@company.com"]
+      notify_on:
+        - "qa_failure"
+        - "manager_approval_needed"
+        
+    - type: "pagerduty"
+      integration_key: "${PAGERDUTY_KEY}"
+      notify_on:
+        - "critical_incident"
+        - "system_compromise"
+
+metrics:
+  track:
+    - "vulnerability_discovery_rate"
+    - "mean_time_to_remediation"
+    - "security_scan_coverage"
+    - "incident_response_time"
+    - "compliance_score"
+    - "threat_intelligence_reports_generated"
+    
+  dashboards:
+    - name: "Security Posture"
+      refresh_interval: 300  # seconds
+      metrics:
+        - "open_critical_vulnerabilities"
+        - "days_since_last_incident"
+        - "compliance_score"
+        
+    - name: "Team Performance"
+      metrics:
+        - "tasks_completed_by_agent"
+        - "average_task_duration"
+        - "qa_pass_rate"
+
+# Custom agent behaviors
+agent_behaviors:
+  ciso-001:
+    communication_style: "executive_summary"
+    decision_making: "risk_based"
+    escalation_threshold: "high"
+    
+  senior-sec-001:
+    communication_style: "technical_detailed"
+    automation_preference: "high"
+    documentation_level: "comprehensive"
+    
+  threat-analyst-001:
+    research_depth: "thorough"
+    ioc_extraction: "automatic"
+    report_format: "stix"
+</file>
+
+<file path="frontend/public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="frontend/src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="frontend/src/components/Layout.jsx">
+const Layout = (
+</file>
+
+<file path="frontend/src/pages/Dashboard.jsx">
+const Dashboard = () =>
+</file>
+
+<file path="frontend/src/services/api.js">
+export const getAgents = async () =>
+⋮----
+export const createAgent = async (agent) =>
+</file>
+
+<file path="frontend/src/tests/App.test.jsx">
+
+</file>
+
+<file path="frontend/src/App.css">
+#root {
+⋮----
+.logo {
+.logo:hover {
+.logo.react:hover {
+⋮----
+a:nth-of-type(2) .logo {
+⋮----
+.card {
+⋮----
+.read-the-docs {
+</file>
+
+<file path="frontend/src/App.jsx">
+function App()
+</file>
+
+<file path="frontend/src/index.css">
+
+</file>
+
+<file path="frontend/src/main.jsx">
+
+</file>
+
+<file path="frontend/src/store.js">
+addAgent: (agent) => set((state) => (
+</file>
+
+<file path="frontend/srcp/ages/Dashboard.jsx">
+const Dashboard = () =>
+⋮----
+const fetchAgents = async () =>
+⋮----
+const handleSubmit = async (e) =>
+</file>
+
+<file path="frontend/.gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="frontend/Dockerfile">
+FROM node:20
+
+WORKDIR /app
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "run", "dev"]
+</file>
+
+<file path="frontend/eslint.config.js">
+
+</file>
+
+<file path="frontend/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "next-link": "^2.0.0",
+    "next-preload-headers": "^3.0.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/react": "^16.3.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.2.4",
+    "vitest": "^4.0.16"
+  }
+}
+</file>
+
+<file path="frontend/postcss.config.js">
+
+</file>
+
+<file path="frontend/README.md">
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</file>
+
+<file path="frontend/tailwind.config.js">
+/** @type {import('tailwindcss').Config} */
+</file>
+
+<file path="frontend/vite.config.js">
+// https://vite.dev/config/
+</file>
+
+<file path=".gitignore">
+venv/
+.env
+__pycache__/
+*.pyc
+mlruns/
+agent_knowledge/
+*.db
+*.log
+</file>
+
+<file path="agentdesk">
+#!/usr/bin/env python3
+"""
+AgentDesk CLI - Command Line Interface for Agent Organization Management
+
+Usage:
+    agentdesk init                          # Initialize a new organization
+    agentdesk desk add <config>             # Add a new agent desk
+    agentdesk desk list                     # List all desks
+    agentdesk task create <title>           # Create a new task
+    agentdesk task assign <task_id> <desk>  # Assign task to desk
+    agentdesk org show                      # Display organization chart
+    agentdesk run                           # Start the task processing loop
+"""
+
+import asyncio
+import json
+import yaml
+import sys
+from pathlib import Path
+from typing import Optional
+import click
+from rich.console import Console
+from rich.table import Table
+from rich.tree import Tree
+from rich import print as rprint
+from datetime import datetime
+
+# Import from our core module (adjust path as needed)
+# For standalone use, you may need to modify imports
+import sys
+from pathlib import Path
+
+# Add the parent directory of src/core to the Python path
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from core.agent import (
+    AgentDesk, AgentRole, LLMConfig, OrganizationStructure,
+    Task, TaskStatus, Priority, DeskStatus,
+    Team, Committee, QAPipelineStage, QAPipeline, WorkflowStep, Workflow,
+    TaskRoutingRule, NotificationChannel, MetricsDashboard, MetricsConfig, AgentBehavior
+)
+
+console = Console()
+
+# Global organization instance (in production, this would be in a database)
+_org: Optional[OrganizationStructure] = None
+_config_dir = Path.home() / ".agentdesk"
+_org_file = _config_dir / "organization.json"
+
+
+def load_organization() -> OrganizationStructure:
+    """Load organization from config file"""
+    global _org
+    
+    if _org is not None:
+        return _org
+    
+    if not _org_file.exists():
+        console.print("[red]No organization found. Run 'agentdesk init' first.[/red]")
+        sys.exit(1)
+    
+    with open(_org_file, 'r') as f:
+        data = json.load(f)
+    
+    org = OrganizationStructure(data['name'])
+    
+    # Recreate desks
+    for desk_data in data.get('desks', []):
+        llm_cfg = desk_data['llm_config']
+        llm_config = LLMConfig(
+            provider=llm_cfg['provider'],
+            model=llm_cfg['model'],
+            temperature=llm_cfg.get('temperature', 0.7),
+            max_tokens=llm_cfg.get('max_tokens', 4000)
+        )
+        
+        desk = AgentDesk(
+            desk_id=desk_data['desk_id'],
+            title=desk_data['title'],
+            role=AgentRole(desk_data['role']),
+            llm_config=llm_config,
+            capabilities=desk_data.get('capabilities', []),
+            hierarchy_level=desk_data.get('hierarchy_level', 0),
+            reports_to=desk_data.get('reports_to'),
+            team_id=desk_data.get('team_id')
+        )
+        org.add_desk(desk)
+    
+    # Recreate teams
+    for team_data in data.get('teams', []):
+        team = Team(
+            team_id=team_data['team_id'],
+            name=team_data['name'],
+            lead=team_data['lead'],
+            members=team_data['members'],
+            focus=team_data.get('focus')
+        )
+        org.teams[team.team_id] = team
+
+    # Recreate committees
+    for committee_data in data.get('committees', []):
+        committee = Committee(
+            committee_id=committee_data['committee_id'],
+            name=committee_data['name'],
+            chair=committee_data['chair'],
+            members=committee_data['members'],
+            purpose=committee_data.get('purpose'),
+            meeting_frequency=committee_data.get('meeting_frequency')
+        )
+        org.committees[committee.committee_id] = committee
+
+    # Recreate QA Pipeline
+    if 'qa_pipeline' in data and data['qa_pipeline']:
+        qa_pipeline_data = data['qa_pipeline']
+        stages = []
+        for stage_data in qa_pipeline_data.get('stages', []):
+            stage = QAPipelineStage(
+                type=stage_data['type'],
+                agent=stage_data.get('agent'),
+                assignee_level=stage_data.get('assignee_level'),
+                required_reviewers=stage_data.get('required_reviewers'),
+                criteria=stage_data.get('criteria', []),
+                timeout=stage_data.get('timeout'),
+                block_on_critical=stage_data.get('block_on_critical'),
+                required_for_types=stage_data.get('required_for_types', []),
+                assessment_areas=stage_data.get('assessment_areas', []),
+                frameworks=stage_data.get('frameworks', []),
+                required_for_priority=stage_data.get('required_for_priority', []),
+                approval_criteria=stage_data.get('approval_criteria', []),
+                tools=stage_data.get('tools', [])
+            )
+            stages.append(stage)
+        org.qa_pipeline = QAPipeline(
+            enabled=qa_pipeline_data.get('enabled', True),
+            required_for=qa_pipeline_data.get('required_for', []),
+            stages=stages
+        )
+
+    # Recreate Workflows
+    for workflow_id, workflow_data in data.get('workflows', {}).items():
+        steps = []
+        for step_data in workflow_data.get('steps', []):
+            step = WorkflowStep(
+                name=step_data['name'],
+                assigned_role=step_data.get('assigned_role'),
+                assigned_agent=step_data.get('assigned_agent'),
+                committee=step_data.get('committee'),
+                team=step_data.get('team'),
+                outputs=step_data.get('outputs', []),
+                inputs=step_data.get('inputs', []),
+                condition=step_data.get('condition'),
+                qa_required=step_data.get('qa_required', False),
+                max_duration=step_data.get('max_duration'),
+                verification_required=step_data.get('verification_required', False),
+                tools=step_data.get('tools', []),
+                focus_areas=step_data.get('focus_areas', []),
+                test_types=step_data.get('test_types', []),
+                required_for=step_data.get('required_for', [])
+            )
+            steps.append(step)
+        workflow = Workflow(
+            name=workflow_data['name'],
+            trigger=workflow_data['trigger'],
+            steps=steps,
+            priority=workflow_data.get('priority')
+        )
+        org.workflows[workflow_id] = workflow
+
+    # Recreate Task Routing Rules
+    for rule_data in data.get('task_routing_rules', []):
+        rule = TaskRoutingRule(
+            keywords=rule_data.get('keywords', []),
+            route_to=rule_data.get('route_to'),
+            escalate_if_critical=rule_data.get('escalate_if_critical'),
+            notify_committee=rule_data.get('notify_committee'),
+            escalate_to=rule_data.get('escalate_to')
+        )
+        org.task_routing_rules.append(rule)
+
+    # Recreate Notifications
+    for channel_data in data.get('notifications', []):
+        channel = NotificationChannel(
+            type=channel_data['type'],
+            webhook_url=channel_data.get('webhook_url'),
+            recipients=channel_data.get('recipients', []),
+            integration_key=channel_data.get('integration_key'),
+            notify_on=channel_data.get('notify_on', [])
+        )
+        org.notifications.append(channel)
+
+    # Recreate Metrics
+    if 'metrics' in data and data['metrics']:
+        metrics_data = data['metrics']
+        dashboards = []
+        for dashboard_data in metrics_data.get('dashboards', []):
+            dashboard = MetricsDashboard(
+                name=dashboard_data['name'],
+                metrics=dashboard_data.get('metrics', []),
+                refresh_interval=dashboard_data.get('refresh_interval')
+            )
+            dashboards.append(dashboard)
+        org.metrics = MetricsConfig(
+            track=metrics_data.get('track', []),
+            dashboards=dashboards
+        )
+
+    # Recreate Agent Behaviors
+    for agent_id, behavior_data in data.get('agent_behaviors', {}).items():
+        behavior = AgentBehavior(
+            communication_style=behavior_data.get('communication_style'),
+            decision_making=behavior_data.get('decision_making'),
+            escalation_threshold=behavior_data.get('escalation_threshold'),
+            automation_preference=behavior_data.get('automation_preference'),
+            negotiation_style=behavior_data.get('negotiation_style'),
+            research_depth=behavior_data.get('research_depth'),
+            ioc_extraction=behavior_data.get('ioc_extraction'),
+            report_format=behavior_data.get('report_format'),
+            documentation_level=behavior_data.get('documentation_level')
+        )
+        org.agent_behaviors[agent_id] = behavior
+
+    _org = org
+    return org
+
+
+def save_organization(org: OrganizationStructure):
+    """Save organization to config file"""
+    _config_dir.mkdir(exist_ok=True)
+    
+    data = {
+        'name': org.org_name,
+        'desks': [desk.to_dict() for desk in org.desks.values()],
+        'tasks': [task.to_dict() for task in org.tasks.values()],
+        'teams': [team.to_dict() for team in org.teams.values()],
+        'committees': [committee.to_dict() for committee in org.committees.values()],
+        'qa_pipeline': org.qa_pipeline.to_dict() if org.qa_pipeline else None,
+        'workflows': {wf_id: wf.to_dict() for wf_id, wf in org.workflows.items()},
+        'task_routing_rules': [rule.to_dict() for rule in org.task_routing_rules],
+        'notifications': [channel.to_dict() for channel in org.notifications],
+        'metrics': org.metrics.to_dict() if org.metrics else None,
+        'agent_behaviors': {agent_id: behavior.to_dict() for agent_id, behavior in org.agent_behaviors.items()},
+        'saved_at': datetime.now().isoformat()
+    }
+    
+    with open(_org_file, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    console.print(f"[green]Organization saved to {_org_file}[/green]")
+
+
+@click.group()
+def cli():
+    """AgentDesk - Hierarchical Multi-Agent AI Organization System"""
+    pass
+
+
+@cli.command()
+@click.option('--name', help='Name of your organization')
+@click.option('--from-file', type=click.Path(exists=True), help='Load from YAML config file')
+def init(name: Optional[str], from_file: Optional[str]):
+    """Initialize a new organization"""
+    
+    global _org
+
+    if from_file:
+        with open(from_file, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        org_name_from_file = config['organization']['name']
+        org = OrganizationStructure(org_name_from_file)
+        console.print(f"[yellow]DEBUG: Desks before loading: {len(org.desks)}[/yellow]")
+        # Create desks from config
+        for desk_cfg in config['organization'].get('desks', []):
+            llm_cfg = desk_cfg['llm']
+            llm_config = LLMConfig(
+                provider=llm_cfg['provider'],
+                model=llm_cfg['model'],
+                temperature=llm_cfg.get('temperature', 0.7),
+                max_tokens=llm_cfg.get('max_tokens', 4000)
+            )
+            
+            desk = AgentDesk(
+                desk_id=desk_cfg['id'],
+                title=desk_cfg['title'],
+                role=AgentRole(desk_cfg['role']),
+                llm_config=llm_config,
+                capabilities=desk_cfg.get('capabilities', []),
+                hierarchy_level=desk_cfg.get('hierarchy_level', 0),
+                reports_to=desk_cfg.get('reports_to'),
+                team_id=desk_cfg.get('team_id')
+            )
+            org.add_desk(desk)
+            console.print(f"[yellow]DEBUG: Added desk {desk.desk_id}. Current desks: {len(org.desks)}[/yellow]")
+
+        # Load teams
+        for team_cfg in config['teams']:
+            team = Team(
+                team_id=team_cfg['id'],
+                name=team_cfg['name'],
+                lead=team_cfg['lead'],
+                members=team_cfg['members'],
+                focus=team_cfg.get('focus')
+            )
+            org.teams[team.team_id] = team
+
+        # Load committees
+        for committee_cfg in config['committees']:
+            committee = Committee(
+                committee_id=committee_cfg['id'],
+                name=committee_cfg['name'],
+                chair=committee_cfg['chair'],
+                members=committee_cfg['members'],
+                purpose=committee_cfg.get('purpose'),
+                meeting_frequency=committee_cfg.get('meeting_frequency')
+            )
+            org.committees[committee.committee_id] = committee
+
+        # Load QA Pipeline
+        if 'qa_pipeline' in config:
+            qa_pipeline_cfg = config['qa_pipeline']
+            stages = []
+            for stage_cfg in qa_pipeline_cfg.get('stages', []):
+                stage = QAPipelineStage(
+                    type=stage_cfg['type'],
+                    agent=stage_cfg.get('agent'),
+                    assignee_level=stage_cfg.get('assignee_level'),
+                    required_reviewers=stage_cfg.get('required_reviewers'),
+                    criteria=stage_cfg.get('criteria', []),
+                    timeout=stage_cfg.get('timeout'),
+                    block_on_critical=stage_cfg.get('block_on_critical'),
+                    required_for_types=stage_cfg.get('required_for_types', []),
+                    assessment_areas=stage_cfg.get('assessment_areas', []),
+                    frameworks=stage_cfg.get('frameworks', []),
+                    required_for_priority=stage_cfg.get('required_for_priority', []),
+                    approval_criteria=stage_cfg.get('approval_criteria', []),
+                    tools=stage_cfg.get('tools', [])
+                )
+                stages.append(stage)
+            org.qa_pipeline = QAPipeline(
+                enabled=qa_pipeline_cfg.get('enabled', True),
+                required_for=qa_pipeline_cfg.get('required_for', []),
+                stages=stages
+            )
+
+        # Load Workflows
+        if 'workflows' in config:
+            for workflow_id, workflow_cfg in config['workflows'].items():
+                steps = []
+                for step_cfg in workflow_cfg.get('steps', []):
+                    step = WorkflowStep(
+                        name=step_cfg['name'],
+                        assigned_role=step_cfg.get('assigned_role'),
+                        assigned_agent=step_cfg.get('assigned_agent'),
+                        committee=step_cfg.get('committee'),
+                        team=step_cfg.get('team'),
+                        outputs=step_cfg.get('outputs', []),
+                        inputs=step_cfg.get('inputs', []),
+                        condition=step_cfg.get('condition'),
+                        qa_required=step_cfg.get('qa_required', False),
+                        max_duration=step_cfg.get('max_duration'),
+                        verification_required=step_cfg.get('verification_required', False),
+                        tools=step_cfg.get('tools', []),
+                        focus_areas=step_cfg.get('focus_areas', []),
+                        test_types=step_cfg.get('test_types', []),
+                        required_for=step_cfg.get('required_for', [])
+                    )
+                    steps.append(step)
+                workflow = Workflow(
+                    name=workflow_cfg['name'],
+                    trigger=workflow_cfg['trigger'],
+                    steps=steps,
+                    priority=workflow_cfg.get('priority')
+                )
+                org.workflows[workflow_id] = workflow
+
+        # Load Task Routing Rules
+        if 'task_routing' in config:
+            for rule_cfg in config['task_routing'].get('rules', []):
+                rule = TaskRoutingRule(
+                    keywords=rule_cfg.get('keywords', []),
+                    route_to=rule_cfg.get('route_to'),
+                    escalate_if_critical=rule_cfg.get('escalate_if_critical'),
+                    notify_committee=rule_cfg.get('notify_committee'),
+                    escalate_to=rule_cfg.get('escalate_to')
+                )
+                org.task_routing_rules.append(rule)
+
+        # Load Notifications
+        if 'notifications' in config:
+            for channel_cfg in config['notifications'].get('channels', []):
+                channel = NotificationChannel(
+                    type=channel_cfg['type'],
+                    webhook_url=channel_cfg.get('webhook_url'),
+                    recipients=channel_cfg.get('recipients', []),
+                    integration_key=channel_cfg.get('integration_key'),
+                    notify_on=channel_cfg.get('notify_on', [])
+                )
+                org.notifications.append(channel)
+
+        # Load Metrics
+        if 'metrics' in config:
+            metrics_cfg = config['metrics']
+            dashboards = []
+            for dashboard_cfg in metrics_cfg.get('dashboards', []):
+                dashboard = MetricsDashboard(
+                    name=dashboard_cfg['name'],
+                    metrics=dashboard_cfg.get('metrics', []),
+                    refresh_interval=dashboard_cfg.get('refresh_interval')
+                )
+                dashboards.append(dashboard)
+            org.metrics = MetricsConfig(
+                track=metrics_cfg.get('track', []),
+                dashboards=dashboards
+            )
+
+        # Load Agent Behaviors
+        if 'agent_behaviors' in config:
+            for agent_id, behavior_cfg in config['agent_behaviors'].items():
+                behavior = AgentBehavior(
+                    communication_style=behavior_cfg.get('communication_style'),
+                    decision_making=behavior_cfg.get('decision_making'),
+                    escalation_threshold=behavior_cfg.get('escalation_threshold'),
+                    automation_preference=behavior_cfg.get('automation_preference'),
+                    negotiation_style=behavior_cfg.get('negotiation_style'),
+                    research_depth=behavior_cfg.get('research_depth'),
+                    ioc_extraction=behavior_cfg.get('ioc_extraction'),
+                    report_format=behavior_cfg.get('report_format'),
+                    documentation_level=behavior_cfg.get('documentation_level')
+                )
+                org.agent_behaviors[agent_id] = behavior
+
+        save_organization(org)
+        _org = org
+        console.print(f"[green]✓ Organization '{org.org_name}' initialized from {from_file}[/green]")
+        console.print(f"[blue]Created {len(org.desks)} agent desks[/blue]")
+        console.print(f"[blue]Loaded {len(org.teams)} teams, {len(org.committees)} committees, {len(org.workflows)} workflows[/blue]")
+    else:
+        if name is None:
+            name = click.prompt('Organization name')
+        org = OrganizationStructure(name)
+        save_organization(org)
+        _org = org
+        console.print(f"[green]✓ Organization '{name}' initialized[/green]")
+        console.print("[yellow]Add agent desks with: agentdesk desk add[/yellow]")
+
+
+@cli.group()
+def desk():
+    """Manage agent desks"""
+    pass
+
+
+@desk.command('list')
+def desk_list():
+    """List all agent desks"""
+    org = load_organization()
+    
+    table = Table(title=f"{org.org_name} - Agent Desks")
+    table.add_column("Desk ID", style="cyan")
+    table.add_column("Title", style="magenta")
+    table.add_column("Role", style="green")
+    table.add_column("Level", justify="right")
+    table.add_column("Reports To", style="yellow")
+    table.add_column("Status", style="blue")
+    
+    for desk in org.desks.values():
+        table.add_row(
+            desk.desk_id,
+            desk.title,
+            desk.role.value,
+            str(desk.hierarchy_level),
+            desk.reports_to or "-",
+            desk.status.value
+        )
+    
+    console.print(table)
+
+
+@desk.command('add')
+@click.option('--desk-id', prompt=True, help='Unique desk identifier')
+@click.option('--title', prompt=True, help='Job title')
+@click.option('--role', type=click.Choice([r.value for r in AgentRole]), prompt=True)
+@click.option('--provider', default='anthropic', help='LLM provider')
+@click.option('--model', default='claude-sonnet-4-20250514', help='LLM model')
+@click.option('--reports-to', help='Desk ID of supervisor')
+@click.option('--level', default=1, help='Hierarchy level')
+def desk_add(desk_id, title, role, provider, model, reports_to, level):
+    """Add a new agent desk"""
+    org = load_organization()
+    
+    if desk_id in org.desks:
+        console.print(f"[red]Error: Desk '{desk_id}' already exists[/red]")
+        return
+    
+    llm_config = LLMConfig(provider=provider, model=model)
+    
+    desk = AgentDesk(
+        desk_id=desk_id,
+        title=title,
+        role=AgentRole(role),
+        llm_config=llm_config,
+        hierarchy_level=level,
+        reports_to=reports_to
+    )
+    
+    org.add_desk(desk)
+    save_organization(org)
+    
+    console.print(f"[green]✓ Added desk '{desk_id}' - {title}[/green]")
+
+
+@desk.command('info')
+@click.argument('desk_id')
+def desk_info(desk_id):
+    """Show detailed information about a desk"""
+    org = load_organization()
+    desk = org.get_desk(desk_id)
+    
+    if not desk:
+        console.print(f"[red]Desk '{desk_id}' not found[/red]")
+        return
+    
+    console.print(f"\n[bold cyan]{desk.title}[/bold cyan] ({desk.desk_id})")
+    console.print(f"Role: {desk.role.value}")
+    console.print(f"Hierarchy Level: {desk.hierarchy_level}")
+    console.print(f"Reports To: {desk.reports_to or 'None (top level)'}")
+    console.print(f"Status: {desk.status.value}")
+    console.print(f"\nLLM Configuration:")
+    console.print(f"  Provider: {desk.llm_config.provider}")
+    console.print(f"  Model: {desk.llm_config.model}")
+    console.print(f"  Temperature: {desk.llm_config.temperature}")
+    
+    if desk.capabilities:
+        console.print(f"\nCapabilities:")
+        for cap in desk.capabilities:
+            console.print(f"  • {cap}")
+    
+    # Show subordinates
+    subordinates = org.get_subordinates(desk_id)
+    if subordinates:
+        console.print(f"\nDirect Reports: {len(subordinates)}")
+        for sub in subordinates:
+            console.print(f"  • {sub.title} ({sub.desk_id})")
+
+
+@cli.group()
+def task():
+    """Manage tasks"""
+    pass
+
+
+@task.command('create')
+@click.option('--title', prompt=True, help='Task title')
+@click.option('--description', prompt=True, help='Task description')
+@click.option('--priority', type=click.Choice(['low', 'medium', 'high', 'critical']), default='medium')
+@click.option('--assign-to', help='Desk ID to assign to')
+def task_create(title, description, priority, assign_to):
+    """Create a new task"""
+    org = load_organization()
+    
+    priority_map = {
+        'low': Priority.LOW,
+        'medium': Priority.MEDIUM,
+        'high': Priority.HIGH,
+        'critical': Priority.CRITICAL
+    }
+    
+    task = org.create_task(
+        title=title,
+        description=description,
+        created_by='cli-user',
+        priority=priority_map[priority]
+    )
+    
+    if assign_to:
+        desk = org.get_desk(assign_to)
+        if desk:
+            task.assigned_to = assign_to
+            console.print(f"[green]✓ Task {task.task_id} created and assigned to {assign_to}[/green]")
+        else:
+            console.print(f"[yellow]Warning: Desk '{assign_to}' not found. Task created unassigned.[/yellow]")
+    else:
+        console.print(f"[green]✓ Task {task.task_id} created[/green]")
+    
+    save_organization(org)
+    console.print(f"Task ID: {task.task_id}")
+
+
+@task.command('list')
+@click.option('--status', help='Filter by status')
+@click.option('--assigned-to', help='Filter by assigned desk')
+def task_list(status, assigned_to):
+    """List all tasks"""
+    org = load_organization()
+    
+    tasks = list(org.tasks.values())
+    
+    if status:
+        tasks = [t for t in tasks if t.status.value == status]
+    if assigned_to:
+        tasks = [t for t in tasks if t.assigned_to == assigned_to]
+    
+    table = Table(title="Tasks")
+    table.add_column("Task ID", style="cyan")
+    table.add_column("Title", style="magenta")
+    table.add_column("Priority", justify="center")
+    table.add_column("Status", style="yellow")
+    table.add_column("Assigned To", style="green")
+    table.add_column("Created", style="blue")
+    
+    for t in tasks:
+        priority_emoji = {
+            Priority.LOW: "🟢",
+            Priority.MEDIUM: "🟡",
+            Priority.HIGH: "🟠",
+            Priority.CRITICAL: "🔴"
+        }
+        
+        table.add_row(
+            t.task_id,
+            t.title[:40] + "..." if len(t.title) > 40 else t.title,
+            priority_emoji.get(t.priority, "⚪"),
+            t.status.value,
+            t.assigned_to or "-",
+            t.created_at.strftime("%Y-%m-%d %H:%M")
+        )
+    
+    console.print(table)
+    console.print(f"\nTotal: {len(tasks)} tasks")
+
+
+@task.command('assign')
+@click.argument('task_id')
+@click.argument('desk_id')
+def task_assign(task_id, desk_id):
+    """Assign a task to a desk"""
+    org = load_organization()
+    
+    task = org.tasks.get(task_id)
+    if not task:
+        console.print(f"[red]Task '{task_id}' not found[/red]")
+        return
+    
+    desk = org.get_desk(desk_id)
+    if not desk:
+        console.print(f"[red]Desk '{desk_id}' not found[/red]")
+        return
+    
+    task.assigned_to = desk_id
+    task.status = TaskStatus.PENDING
+    save_organization(org)
+    
+    console.print(f"[green]✓ Task {task_id} assigned to {desk.title}[/green]")
+
+
+@task.command('process')
+@click.argument('task_id')
+async def task_process_cmd(task_id):
+    """Process a task (run the assigned agent)"""
+    org = load_organization()
+    
+    task = org.tasks.get(task_id)
+    if not task:
+        console.print(f"[red]Task '{task_id}' not found[/red]")
+        return
+    
+    if not task.assigned_to:
+        console.print(f"[red]Task is not assigned to any desk[/red]")
+        return
+    
+    desk = org.get_desk(task.assigned_to)
+    if not desk:
+        console.print(f"[red]Assigned desk '{task.assigned_to}' not found[/red]")
+        return
+    
+    console.print(f"[blue]Processing task {task_id} with {desk.title}...[/blue]")
+    
+    with console.status("[bold green]Agent working..."):
+        result = await desk.process_task(task)
+    
+    console.print(f"[green]✓ Task completed[/green]")
+    console.print(f"Status: {task.status.value}")
+    console.print(f"Result: {result}")
+    
+    save_organization(org)
+
+
+@cli.command()
+def org():
+    """Display organization chart"""
+    org = load_organization()
+    
+    def build_tree(desk: AgentDesk, tree: Tree):
+        subordinates = org.get_subordinates(desk.desk_id)
+        for sub in subordinates:
+            status_emoji = {
+                DeskStatus.ACTIVE: "🟢",
+                DeskStatus.IDLE: "⚪",
+                DeskStatus.BUSY: "🟡",
+                DeskStatus.OFFLINE: "🔴"
+            }
+            
+            label = f"{sub.title} ({sub.desk_id}) {status_emoji.get(sub.status, '')}"
+            branch = tree.add(label)
+            build_tree(sub, branch)
+    
+    # Find root desks (those with no supervisor)
+    roots = [d for d in org.desks.values() if not d.reports_to]
+    
+    main_tree = Tree(f"[bold cyan]{org.org_name}[/bold cyan]")
+    
+    for root in roots:
+        status_emoji = {
+            DeskStatus.ACTIVE: "🟢",
+            DeskStatus.IDLE: "⚪",
+            DeskStatus.BUSY: "🟡",
+            DeskStatus.OFFLINE: "🔴"
+        }
+        
+        label = f"{root.title} ({root.desk_id}) {status_emoji.get(root.status, '')}"
+        branch = main_tree.add(label)
+        build_tree(root, branch)
+    
+    console.print(main_tree)
+    console.print(f"\nTotal desks: {len(org.desks)}")
+    console.print(f"Total tasks: {len(org.tasks)}")
+
+
+@cli.command()
+def run():
+    """Start interactive task processing loop"""
+    org = load_organization()
+    
+    console.print(f"[bold green]AgentDesk Task Processor[/bold green]")
+    console.print(f"Organization: {org.org_name}")
+    console.print(f"Desks: {len(org.desks)}, Tasks: {len(org.tasks)}\n")
+    
+    while True:
+        # Find pending tasks
+        pending = [t for t in org.tasks.values() if t.status == TaskStatus.PENDING and t.assigned_to]
+        
+        if not pending:
+            console.print("[yellow]No pending tasks. Use 'task create' to add tasks.[/yellow]")
+            break
+        
+        console.print(f"\n[cyan]Found {len(pending)} pending tasks:[/cyan]")
+        for i, task in enumerate(pending[:5], 1):
+            console.print(f"{i}. {task.task_id}: {task.title} → {task.assigned_to}")
+        
+        choice = console.input("\n[bold]Process which task? (number or 'q' to quit): [/bold]")
+        
+        if choice.lower() == 'q':
+            break
+        
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(pending):
+                task = pending[idx]
+                asyncio.run(task_process_cmd.callback(task.task_id))
+            else:
+                console.print("[red]Invalid choice[/red]")
+        except ValueError:
+            console.print("[red]Invalid input[/red]")
+
+
+if __name__ == '__main__':
+    # Wrap async commands
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'task' and len(sys.argv) > 2 and sys.argv[2] == 'process':
+        # Run async command
+        asyncio.run(cli())
+    else:
+        cli()
+</file>
+
+<file path="Dockerfile">
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+</file>
+
+<file path="README.md">
+# AgentDesk
+
+Hierarchical Multi-Agent AI Organization System
+
+## Quick Start
+
+1. Activate virtual environment:
+   ```bash
+   source venv/bin/activate  # Linux/Mac
+   ```
+
+2. Install dependencies:
+   ```bash
+   poetry install
+   # or
+   pip install -r requirements.txt
+   ```
+
+3. Set up environment:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
+
+4. Start infrastructure (if using Docker):
+   ```bash
+   docker-compose up -d
+   ```
+
+5. Run the example:
+   ```bash
+   python src/core/agent.py
+   ```
+
+## Documentation
+
+See the `docs/` directory for detailed documentation.
+
+## License
+
+MIT
+</file>
+
+<file path="requirements.txt">
+fastapi
+uvicorn
+pydantic
+python-dotenv
+google-generativeai
+mlflow
+chromadb
+requests
+</file>
+
+</files>
