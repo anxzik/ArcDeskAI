@@ -6,3 +6,4 @@ mlruns/
 agent_knowledge/
 *.db
 *.log
+.env.dev
