@@ -3,3 +3,4 @@ node_modules
 *.log
 tunnel_output.txt
 agentdesk/frontend/.next
+.env.dev

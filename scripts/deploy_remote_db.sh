@@ -16,6 +16,13 @@ NC='\033[0m' # No Color
 # Load environment variables
 if [ -f "agentdesk/.env.dev" ]; then
     source agentdesk/.env.dev
+else read -p "Please provide the path to your .env.dev file: " ENV_PATH
+    if [ -f "$ENV_PATH" ]; then
+        source "$ENV_PATH"
+    else
+        echo -e "${RED}Error: .env.dev file not found at $ENV_PATH${NC}"
+        exit 1
+    fi
 fi
 
 # Database connection details
