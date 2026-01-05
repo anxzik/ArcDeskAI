@@ -122,7 +122,7 @@ class Organization(Base):
 
     # Settings
     settings = Column(JSONB, default={})
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, nullable=False)
@@ -225,7 +225,7 @@ class Desk(Base):
     # Settings
     system_prompt = Column(Text)
     instructions = Column(Text)
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
@@ -337,7 +337,7 @@ class Task(Base):
     # Context & metadata
     tags = Column(ARRAY(String), default=list)
     context = Column(JSONB, default={})
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     # Results
     result = Column(JSONB)
@@ -393,7 +393,7 @@ class Workflow(Base):
     is_active = Column(Boolean, default=True)
     is_default = Column(Boolean, default=False)
 
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
@@ -479,7 +479,7 @@ class Message(Base):
     content = Column(Text, nullable=False)
 
     # Metadata
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
     tool_calls = Column(JSONB)
     tool_results = Column(JSONB)
 
@@ -558,7 +558,7 @@ class KnowledgeBase(Base):
     vector_store_config = Column(JSONB, default={})
 
     is_active = Column(Boolean, default=True)
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
@@ -597,7 +597,7 @@ class DataSource(Base):
     document_count = Column(Integer, default=0)
     total_size_bytes = Column(BigInteger, default=0)
 
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
@@ -645,7 +645,7 @@ class CostTracking(Base):
     total_cost = Column(Numeric(10, 6), default=0.0)
 
     # Metadata
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     # Timestamp
     created_at = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, nullable=False)
@@ -692,7 +692,7 @@ class AuditLog(Base):
     # Details
     description = Column(Text)
     changes = Column(JSONB)  # Before/after state
-    metadata = Column(JSONB, default={})
+    meta_data = Column(JSONB, default={})
 
     # Context
     ip_address = Column(String(45))

@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade to multi-tenant schema."""
 
-    # Create ENUM types
+    # Create ENUM types with raw SQL
     op.execute("""
         CREATE TYPE roletype AS ENUM (
             'executive', 'senior_engineer', 'engineer', 'qa_engineer',
@@ -38,34 +38,23 @@ def upgrade() -> None:
     """)
 
     op.execute("""
-        CREATE TYPE taskpriority AS ENUM (
-            'critical', 'high', 'medium', 'low'
-        )
+        CREATE TYPE taskpriority AS ENUM ('critical', 'high', 'medium', 'low')
     """)
 
     op.execute("""
-        CREATE TYPE qastagestatus AS ENUM (
-            'pending', 'in_progress', 'passed', 'failed', 'skipped'
-        )
+        CREATE TYPE qastagestatus AS ENUM ('pending', 'in_progress', 'passed', 'failed', 'skipped')
     """)
 
     op.execute("""
-        CREATE TYPE llmprovider AS ENUM (
-            'anthropic', 'openai', 'google', 'local', 'azure', 'custom'
-        )
+        CREATE TYPE llmprovider AS ENUM ('anthropic', 'openai', 'google', 'local', 'azure', 'custom')
     """)
 
     op.execute("""
-        CREATE TYPE subscriptiontier AS ENUM (
-            'free', 'starter', 'professional', 'enterprise'
-        )
+        CREATE TYPE subscriptiontier AS ENUM ('free', 'starter', 'professional', 'enterprise')
     """)
 
     op.execute("""
-        CREATE TYPE auditaction AS ENUM (
-            'create', 'update', 'delete', 'access', 'execute',
-            'delegate', 'approve', 'reject'
-        )
+        CREATE TYPE auditaction AS ENUM ('create', 'update', 'delete', 'access', 'execute', 'delegate', 'approve', 'reject')
     """)
 
     # ========================================================================
@@ -83,7 +72,7 @@ def upgrade() -> None:
         sa.Column('max_tasks_per_month', sa.Integer, server_default='1000'),
         sa.Column('max_llm_cost_per_month', sa.Numeric(10, 2), server_default='100.00'),
         sa.Column('settings', postgresql.JSONB, server_default='{}'),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
         sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
@@ -139,7 +128,7 @@ def upgrade() -> None:
         sa.Column('status', sa.String(50), server_default='available'),
         sa.Column('system_prompt', sa.Text),
         sa.Column('instructions', sa.Text),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
@@ -167,7 +156,7 @@ def upgrade() -> None:
         sa.Column('qa_stages', postgresql.JSONB, server_default='[]'),
         sa.Column('is_active', sa.Boolean, server_default='true'),
         sa.Column('is_default', sa.Boolean, server_default='false'),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], ondelete='CASCADE'),
@@ -200,7 +189,7 @@ def upgrade() -> None:
         sa.Column('deliverables', postgresql.JSONB, server_default='[]'),
         sa.Column('tags', postgresql.ARRAY(sa.String), server_default='{}'),
         sa.Column('context', postgresql.JSONB, server_default='{}'),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('result', postgresql.JSONB),
         sa.Column('output_artifacts', postgresql.JSONB, server_default='[]'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
@@ -258,7 +247,7 @@ def upgrade() -> None:
         sa.Column('session_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('role', sa.String(50), nullable=False),
         sa.Column('content', sa.Text, nullable=False),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('tool_calls', postgresql.JSONB),
         sa.Column('tool_results', postgresql.JSONB),
         sa.Column('input_tokens', sa.Integer, server_default='0'),
@@ -336,7 +325,7 @@ def upgrade() -> None:
         sa.Column('embedding_model', sa.String(100)),
         sa.Column('vector_store_config', postgresql.JSONB, server_default='{}'),
         sa.Column('is_active', sa.Boolean, server_default='true'),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], ondelete='CASCADE'),
@@ -359,7 +348,7 @@ def upgrade() -> None:
         sa.Column('credentials', postgresql.JSONB),
         sa.Column('document_count', sa.Integer, server_default='0'),
         sa.Column('total_size_bytes', sa.BigInteger, server_default='0'),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('NOW()')),
         sa.ForeignKeyConstraint(['knowledge_base_id'], ['knowledge_bases.id'], ondelete='CASCADE'),
@@ -385,7 +374,7 @@ def upgrade() -> None:
         sa.Column('input_cost', sa.Numeric(10, 6), server_default='0.0'),
         sa.Column('output_cost', sa.Numeric(10, 6), server_default='0.0'),
         sa.Column('total_cost', sa.Numeric(10, 6), server_default='0.0'),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
         sa.Column('billing_month', sa.String(7), nullable=False),
         sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], ondelete='CASCADE'),
@@ -413,7 +402,7 @@ def upgrade() -> None:
         sa.Column('resource_id', postgresql.UUID(as_uuid=True)),
         sa.Column('description', sa.Text),
         sa.Column('changes', postgresql.JSONB),
-        sa.Column('metadata', postgresql.JSONB, server_default='{}'),
+        sa.Column('meta_data', postgresql.JSONB, server_default='{}'),
         sa.Column('ip_address', sa.String(45)),
         sa.Column('user_agent', sa.String(500)),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
